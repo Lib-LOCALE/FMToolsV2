@@ -32,8 +32,7 @@ jobs:
 
           gh release create ${{ github.ref_name }} \
             --title "FMToolsV2 ${{ github.ref_name }}" \
-            --notes-file notes.md \
-            --draft || true
+            --notes-file notes.md || true
 
   build-release:
     needs: create-release
