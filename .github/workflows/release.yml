@@ -68,6 +68,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Set Version from Tag
+        run: node scripts/set_version.js ${{ github.ref_name }}
+
       - name: Build Tauri app
         run: npm run tauri build
 
