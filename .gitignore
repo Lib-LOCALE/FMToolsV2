@@ -36,3 +36,7 @@ run_info.json
 # IDE
 .vscode/
 .idea/
+
+# Reference documents (internal only)
+FM26_*.md
+setup_instructions.md
