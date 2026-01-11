@@ -11,6 +11,8 @@ build
 # Rust / Cargo
 /src-tauri/target
 /src-tauri/Cargo.lock
+/src-tauri/gen
+
 
 # Logs
 *.log
