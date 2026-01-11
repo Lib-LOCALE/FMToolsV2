@@ -393,10 +393,238 @@ function applyAdjustments(result: CalculationResult, pKey: string | null, mKey: 
 
     if (!pKey || !mKey) return;
 
-    // Exemple d'ajustements courants
+    // --- resistant() ---
+    if (pKey === 'Res') {
+        if (mKey === 'EvaImp') { if (result.maxPro > 17) result.maxPro = 17; }
+        else if (mKey === 'EvaIrCon') { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'EvaCon') { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'EvaVerCon') { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'EvaVer') { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'EvaIr' && result.maxAmb > 13) { result.maxAmb = 13; }
+    }
+
+    // --- realist() ---
+    if (pKey === 'Rea') {
+        if (mKey === 'EvaImp') { if (result.maxPro > 17) result.maxPro = 17; }
+        else if (mKey === 'Imp') { if (result.minPro < 13) result.minPro = 13; }
+        else if (mKey === 'EvaIrCon' && det >= 14) { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'EvaCon' && det >= 14) { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'EvaVerCon' && det >= 14) { if (result.maxAmb > 13) result.maxAmb = 13; }
+        else if (mKey === 'Equi' && result.minPro < 13) { result.minPro = 13; }
+    }
+    if (pKey === 'Del') {
+        if (mKey === 'Imp') { if (result.minPro < 13) result.minPro = 13; }
+        else if (mKey === 'Ir') { if (result.minPro < 13) result.minPro = 13; }
+        else if (mKey === 'Ver') { if (result.minPro < 13) result.minPro = 13; }
+        else if (mKey === 'Equi' && result.minPro < 13) { result.minPro = 13; }
+    }
+
+    // --- perfection() ---
+    if (pKey === 'Per') {
+        if (['ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon'].includes(mKey)) {
+            if (result.maxFid > 10) result.maxFid = 10;
+        }
+    }
+
+    // --- motive() ---
+    if (pKey === 'Mot') {
+        if (['EvaCon', 'EvaIr', 'EvaIrCon', 'EvaVer', 'EvaVerCon'].includes(mKey)) {
+            if (result.maxAmb > 13) result.maxAmb = 13;
+        } else if (mKey === 'EvaImp') {
+            if (result.maxPro > 17) result.maxPro = 17;
+        }
+    }
+    if (pKey === 'Ob') {
+        if (mKey === 'EvaImp' && result.maxPro > 17) result.maxPro = 17;
+    }
+
+    // --- modelepro() ---
+    if (pKey === 'Modpro' || pKey === 'Pro') {
+        if (mKey === 'ApMe') { if (result.maxFid > 10) result.maxFid = 10; }
+        else if (mKey === 'ApMeImp') {
+            if (result.maxFid > 10) result.maxFid = 10;
+            if (result.minTemp < 16) result.minTemp = 16;
+        }
+        else if (mKey === 'Imp') { if (result.minTemp < 16) result.minTemp = 16; }
+        else if (mKey === 'Equi') {
+            if (result.maxPre > 14) result.maxPre = 14;
+            if (result.minPol < 6) result.minPol = 6;
+        }
+    }
+
+    // --- facil() ---
+    if (pKey === 'Fac' || pKey === 'FaDe') {
+        if (mKey === 'EvaImp' && result.maxPro > 17) result.maxPro = 17;
+    }
+    if (pKey === 'FP') {
+        if (mKey === 'ApMe' || mKey === 'ApMeImp' || mKey === 'ApMeIr' || mKey === 'ApMeVer') {
+            if (result.maxFid > 10) result.maxFid = 10;
+        } else if (mKey === 'EvaImp' && result.maxPro > 17) result.maxPro = 17;
+    }
+    if (pKey === 'Ho') {
+        if (mKey === 'ApMe' || mKey === 'ApMeImp' || mKey === 'ApMeIr' || mKey === 'ApMeVer') {
+            if (result.maxFid > 10) result.maxFid = 10;
+        } else if (mKey === 'EvaImp' && result.maxPro > 17) result.maxPro = 17;
+    }
+
+    // --- enjoue() ---
+    if (pKey === 'Enj') {
+        if (mKey === 'ApMe') {
+            if (result.maxPro > 14) result.maxPro = 14;
+            if (result.maxFid > 10) result.maxFid = 10;
+        } else if (mKey === 'ApMeImp' && result.maxFid > 10) { result.maxFid = 10; }
+    }
+
+    // --- devoue() ---
+    if (pKey === 'Dev' || pKey === 'SAmb') {
+        // Liste des médias pour devoue()
+        if (['ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon'].includes(mKey)) {
+            if (result.maxPro > 12) result.maxPro = 12;
+            if (result.maxFp > 11) result.maxFp = 11;
+        } else if (mKey === 'EvaImp') {
+            if (result.maxPro > 17) result.maxPro = 17;
+        }
+    }
+
+    // --- effronte() ---
+    if (pKey === 'Ef') {
+        if (['ApMeVer', 'ApMeIr', 'ApMeIrCon', 'ApMeVerCon', 'Con', 'Ir', 'IrCon', 'Ver', 'VerCon', 'ApMeCon'].includes(mKey)) {
+            if (result.maxPro > 14) result.maxPro = 14;
+        } else if (mKey === 'EvaImp') {
+            if (result.maxPro > 17) result.maxPro = 17;
+        } else if (mKey === 'Equi') {
+            if (result.maxPro > 14) result.maxPro = 14;
+            if (result.maxTemp > 14) result.maxTemp = 14;
+        } else if (['EvaCon', 'EvaIr', 'EvaVer', 'EvaVerCon', 'EvaIrCon'].includes(mKey)) {
+            if (result.maxAmb > 13) result.maxAmb = 13;
+        }
+    }
+
+    // --- determine() ---
+    if (pKey === 'Det') {
+        const mediaGroup = ['Con', 'SpoIrCon', 'SpoVerCon', 'SpoCon', 'SpoIr', 'SpoVer', 'IrCon', 'VerCon', 'ApMeVer', 'ApMeIr', 'ApMeVerCon', 'ApMeIrCon', 'ApMeCon', 'Ir', 'Eva', 'EvaRes', 'EvaIr', 'EvaIrCon', 'EvaCon', 'EvaVerCon', 'EvaVer', 'Ver'];
+        if (mediaGroup.includes(mKey)) {
+            if (det >= 14 && result.maxAmb > 13) result.maxAmb = 13;
+        }
+
+        if (['ApMe', 'ApMeVer', 'ApMeIr', 'ApMeVerCon', 'ApMeIrCon', 'ApMeCon'].includes(mKey)) {
+            if (result.maxFid > 10) result.maxFid = 10;
+        }
+    }
+
+    // --- decontracte() ---
+    if (pKey === 'Dec') {
+        if (mKey === 'Equi' || mKey === 'Ver') {
+            if (result.minFp < 12) result.minFp = 12;
+        }
+    }
+
+    // --- deloyal() (déjà traité partiellement dans realist, complété ici) ---
+    if (pKey === 'Del') {
+        if (mKey === 'Equi' || mKey === 'ApMeRe' || mKey === 'EvaRes' || mKey === 'Eva' || mKey === 'Spo' || mKey === 'Re') {
+            if (result.minTemp < 8) result.minTemp = 8;
+        }
+        if (['EvaCon', 'EvaIrCon', 'EvaVerCon'].includes(mKey)) {
+            if (det >= 14 && result.maxAmb > 13) result.maxAmb = 13;
+        }
+        if (mKey === 'EvaImp' && result.maxPro > 17) result.maxPro = 17;
+    }
+
+    // --- ambition(), mercenaire(), tresambitieux(), versatile() ---
+    // Ces 4 fonctions partagent une logique très similaire
     if (['Amb', 'Me', 'TreAmb', 'Vers'].includes(pKey)) {
-        if (['EvaIr', 'EvaIrCon', 'EvaVer', 'EvaVerCon', 'EvaCon'].includes(mKey)) {
-            result.detMax = Math.min(result.detMax, 13);
+        if (mKey === 'Eva') {
+            if (det >= 14) {
+                if (result.minTemp < 10) result.minTemp = 10;
+                if (result.maxPro > 17) result.maxPro = 17;
+            }
+        } else if (mKey === 'ApMeRe' || mKey === 'EvaRes') {
+            if (det >= 14) {
+                if (result.minTemp < 10) result.minTemp = 10;
+                if (result.maxPro > 17) result.maxPro = 17;
+            }
+        } else if (mKey === 'ApMeIr' || mKey === 'ApMeIrCon' || mKey === 'SpoIr' || mKey === 'SpoIrCon') {
+            if (det >= 14) {
+                if (result.minPro < 11) result.minPro = 11;
+                if (result.maxPro > 13) result.maxPro = 13;
+            }
+        } else if (['ApMeVerCon', 'ApMeVer', 'ApMeCon', 'SpoVerCon', 'SpoVer', 'SpoCon'].includes(mKey)) {
+            if (det >= 14 && result.maxPro > 13) result.maxPro = 13;
+        } else if (mKey === 'EvaImp') {
+            if (result.maxPro > 17) result.maxPro = 17;
+        } else if (['EvaIr', 'EvaIrCon', 'EvaVer', 'EvaVerCon', 'EvaCon'].includes(mKey)) {
+            // det.max = 13 restriction logic from user code: det.value > 13 => 13
+            // here we cap detMax
+            result.detMax = 13;
+        }
+    }
+
+    // --- AssezAmb() ---
+    if (pKey === 'AsAmb') {
+        if (['Con', 'IrCon', 'VerCon'].includes(mKey)) {
+            if (det >= 14) result.midPro = 13;
+        } else if (['ApMeVer', 'ApMeIr', 'Ir', 'Ver', 'SpoIr', 'SpoVer', 'ApMeVerCon', 'ApMeIrCon', 'ApMeCon', 'SpoIrCon', 'SpoVerCon', 'SpoCon'].includes(mKey)) {
+            if (det >= 14 && result.maxPro > 13) result.maxPro = 13;
+        }
+    }
+
+    // --- pasperfection() ---
+    if (pKey === 'AsPro') {
+        const mediaGroup = ['Con', 'SpoIrCon', 'SpoVerCon', 'SpoCon', 'SpoIr', 'SpoVer', 'IrCon', 'VerCon', 'ApMeVer', 'ApMeIr', 'ApMeVerCon', 'ApMeIrCon', 'ApMeCon', 'Ir', 'Eva', 'EvaRes', 'EvaIr', 'EvaIrCon', 'EvaCon', 'EvaVerCon', 'EvaIrCon', 'EvaVer', 'Ver'];
+        if (mediaGroup.includes(mKey)) {
+            if (det >= 14 && result.maxAmb > 13) result.maxAmb = 13;
+        }
+    }
+
+    // --- assezfp() ---
+    if (pKey === 'AsFP') {
+        if (['ApMe', 'ApMeIr', 'ApMeVer'].includes(mKey)) {
+            if (result.maxFid > 10) result.maxFid = 10;
+        }
+    }
+
+    // --- loyal() ---
+    if (pKey === 'AsLo' || pKey === 'Lo' || pKey === 'TreLoy') {
+        const mediaGroup = ['ApMe', 'ApMeIr', 'ApMeVer', 'ApMeIrCon', 'ApMeCon', 'ApMeVerCon'];
+        if (mediaGroup.includes(mKey)) {
+            if (result.maxPro > 12) result.maxPro = 12;
+            if (result.maxFp > 11) result.maxFp = 11;
+        }
+        if (mKey === 'ApMeImp' && pKey !== 'AsLo') {
+            // 'ApMeImp' applies to Lo and TreLoy only in the source loop logic?
+            // Actually, looking closely at user code:
+            // AsLo: ApMe ... ApMeVerCon (excludes ApMeImp)
+            // Lo: ApMe ... ApMeVerCon AND ApMeImp AND EvaImp
+            // TreLoy: Same as Lo
+            if (pKey === 'Lo' || pKey === 'TreLoy') {
+                if (result.maxPro > 12) result.maxPro = 12;
+                if (result.maxFp > 11) result.maxFp = 11;
+            }
+        }
+        if (mKey === 'EvaImp' && (pKey === 'Lo' || pKey === 'TreLoy')) {
+            if (result.maxPro > 17) result.maxPro = 17;
+        }
+    }
+
+    // --- citoyenmodele() ---
+    if (pKey === 'CiMo') {
+        if (mKey === 'Imp' || mKey === 'SpoImp') {
+            if (result.minTemp < 16) result.minTemp = 16;
+        }
+    }
+
+    // --- indololent() ---
+    if (pKey === 'In' || pKey === 'Dec') {
+        if (['Imp', 'Ir', 'Ver', 'Equi'].includes(mKey)) {
+            if (result.minFp < 12) result.minFp = 12;
+        }
+    }
+
+    // --- forteperso() / forteperso1() ---
+    if (pKey === 'Fo') {
+        result.minPro = 1; // forteperso()
+        if (mKey === 'Ir' || mKey === 'Ver') { // forteperso1()
+            if (result.minFp < 12) result.minFp = 12;
         }
     }
 }
