@@ -88,6 +88,13 @@ body {
 
     .input-glass {
         @apply bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all;
+
+        /* Fix for breakdown options being white-on-white in some browsers */
+        & option {
+            @apply bg-slate-900 text-white;
+            background-color: rgb(30, 20, 50);
+            /* Match theme dark violet */
+        }
     }
 }
 

@@ -81,8 +81,10 @@
         <!-- Formulaires de saisie avec dropdowns -->
         <div class="input-section">
             <!-- Entrainement -->
-            <div class="card">
-                <h3 class="card-title">
+            <div class="card-glass p-6">
+                <h3
+                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
+                >
                     <span class="title-icon">⚽</span>
                     {$_("staff.training")}
                 </h3>
@@ -95,6 +97,7 @@
                                 )}</label
                             >
                             <select
+                                class="input-glass"
                                 value={attributes[attr]}
                                 onchange={(e) => handleSelect(attr, e)}
                             >
@@ -110,8 +113,10 @@
             </div>
 
             <!-- Mental -->
-            <div class="card">
-                <h3 class="card-title">
+            <div class="card-glass p-6">
+                <h3
+                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
+                >
                     <span class="title-icon">🧠</span>
                     {$_("staff.mental")}
                 </h3>
@@ -120,6 +125,7 @@
                         <div class="input-row">
                             <label>{$_(`staff.${attr}`)}</label>
                             <select
+                                class="input-glass"
                                 value={attributes[attr]}
                                 onchange={(e) => handleSelect(attr, e)}
                             >
@@ -135,8 +141,10 @@
             </div>
 
             <!-- Gardiens -->
-            <div class="card">
-                <h3 class="card-title">
+            <div class="card-glass p-6">
+                <h3
+                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
+                >
                     <span class="title-icon">🧤</span>
                     {$_("staff.gk_training")}
                 </h3>
@@ -149,6 +157,7 @@
                                 )}</label
                             >
                             <select
+                                class="input-glass"
                                 value={attributes[attr]}
                                 onchange={(e) => handleSelect(attr, e)}
                             >
@@ -164,8 +173,10 @@
             </div>
 
             <!-- Connaissances -->
-            <div class="card">
-                <h3 class="card-title">
+            <div class="card-glass p-6">
+                <h3
+                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
+                >
                     <span class="title-icon">📚</span>
                     {$_("staff.knowledge")}
                 </h3>
@@ -174,6 +185,7 @@
                         <div class="input-row">
                             <label>{$_("staff.tactical_knowledge")}</label>
                             <select
+                                class="input-glass"
                                 value={attributes[attr]}
                                 onchange={(e) => handleSelect(attr, e)}
                             >

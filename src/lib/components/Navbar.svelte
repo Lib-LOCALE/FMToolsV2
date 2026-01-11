@@ -10,9 +10,13 @@
     import { page } from "$app/stores";
     import "flag-icons/css/flag-icons.min.css";
     import { AppBar } from "@skeletonlabs/skeleton";
+    import { portal } from "$lib/actions/portal";
+    import { fade } from "svelte/transition";
 
     let showLangDropdown = $state(false);
     let currentLang = $state("fr");
+    let langButtonEl: HTMLElement | null = $state(null);
+    let dropdownCoords = $state({ top: 0, right: 0 });
 
     const navItems = [
         { path: "/", icon: "🏠", key: "nav.home" },
@@ -35,6 +39,19 @@
 
     function getCurrentFlagCode() {
         return getFlagCode(currentLang);
+    }
+
+    function toggleLangDropdown() {
+        if (!showLangDropdown && langButtonEl) {
+            const rect = langButtonEl.getBoundingClientRect();
+            dropdownCoords = {
+                top: rect.bottom + 8,
+                right: window.innerWidth - rect.right,
+            };
+            showLangDropdown = true;
+        } else {
+            showLangDropdown = false;
+        }
     }
 
     function closeLangDropdown() {
@@ -92,10 +109,14 @@
         </div>
 
         <svelte:fragment slot="trail">
-            <div class="relative" onclick={(e) => e.stopPropagation()}>
+            <div class="relative">
                 <button
+                    bind:this={langButtonEl}
                     class="btn btn-sm bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
-                    onclick={() => (showLangDropdown = !showLangDropdown)}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        toggleLangDropdown();
+                    }}
                 >
                     <span
                         class="fi fi-{getCurrentFlagCode()} rounded-sm shadow-sm opacity-90"
@@ -108,7 +129,11 @@
 
                 {#if showLangDropdown}
                     <div
-                        class="absolute right-0 top-full mt-2 w-48 max-h-80 overflow-y-auto card-glass p-1 z-[1000] border-t border-white/20"
+                        use:portal
+                        class="fixed w-48 max-h-80 overflow-y-auto card-glass p-1 z-[9999] border-t border-white/20 shadow-2xl"
+                        style="top: {dropdownCoords.top}px; right: {dropdownCoords.right}px;"
+                        onclick={(e) => e.stopPropagation()}
+                        transition:fade={{ duration: 100 }}
                     >
                         {#each EU_LANGUAGES as lang}
                             <button

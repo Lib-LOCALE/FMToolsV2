@@ -1,19 +1,36 @@
 <script lang="ts">
+    import { portal } from "$lib/actions/portal";
+
     interface Props {
         text: string;
     }
 
     let { text }: Props = $props();
     let showTooltip = $state(false);
+    let triggerEl: HTMLElement | null = $state(null);
+    let coords = $state({ top: 0, left: 0 });
+
+    function handleMouseEnter() {
+        if (triggerEl) {
+            const rect = triggerEl.getBoundingClientRect();
+            coords = {
+                top: rect.top - 10, // Position above the element
+                left: rect.left + rect.width / 2, // Center horizontally
+            };
+            showTooltip = true;
+        }
+    }
 </script>
 
 <span
     class="tooltip-container"
     role="tooltip"
-    onmouseenter={() => (showTooltip = true)}
+    bind:this={triggerEl}
+    onmouseenter={handleMouseEnter}
     onmouseleave={() => (showTooltip = false)}
 >
-    <span class="info-icon" aria-label="Information">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <span class="info-icon" aria-label="Information" tabindex="0">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -28,7 +45,12 @@
     </span>
 
     {#if showTooltip}
-        <div class="tooltip-popup" role="tooltip">
+        <div
+            use:portal
+            class="tooltip-popup"
+            role="tooltip"
+            style="top: {coords.top}px; left: {coords.left}px;"
+        >
             <div class="tooltip-content">
                 {text}
             </div>
@@ -39,7 +61,6 @@
 
 <style>
     .tooltip-container {
-        position: relative;
         display: inline-flex;
         align-items: center;
         margin-left: 0.5rem;
@@ -54,23 +75,23 @@
         padding: 0;
         background: rgba(107, 74, 158, 0.3);
         color: var(--color-violet-secondary, #8b6abf);
-        cursor: default;
+        cursor: help;
         border-radius: 50%;
         transition: all var(--transition-fast, 0.15s ease);
     }
 
-    .tooltip-container:hover .info-icon {
+    .tooltip-container:hover .info-icon,
+    .info-icon:focus {
         color: var(--color-accent-primary, #ff6b00);
         background: rgba(255, 107, 0, 0.15);
         transform: scale(1.1);
+        outline: none;
     }
 
     .tooltip-popup {
-        position: absolute;
-        left: 50%;
-        bottom: calc(100% + 10px);
-        transform: translateX(-50%);
-        z-index: 1000;
+        position: fixed; /* Fixed relative to viewport to avoid scroll clipping */
+        transform: translateX(-50%) translateY(-100%); /* Center and move up */
+        z-index: 9999;
         width: max-content;
         max-width: 320px;
         animation: tooltipSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -110,38 +131,20 @@
     @keyframes tooltipSlideIn {
         from {
             opacity: 0;
-            transform: translateX(-50%) translateY(8px) scale(0.95);
+            transform: translateX(-50%) translateY(calc(-100% + 8px))
+                scale(0.95);
         }
         to {
             opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
+            transform: translateX(-50%) translateY(-100%) scale(1);
         }
     }
 
-    /* Mobile: position tooltip to the left to avoid cutoff */
     @media (max-width: 640px) {
         .tooltip-popup {
             max-width: 280px;
-            left: auto;
-            right: -20px;
-            transform: none;
-        }
-
-        .tooltip-arrow {
-            left: auto;
-            right: 25px;
-            transform: rotate(45deg);
-        }
-
-        @keyframes tooltipSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            /* On mobile, might need shift logic, but simple centering is often okay 
+               unless near edge. For now, rely on centering. */
         }
     }
 </style>

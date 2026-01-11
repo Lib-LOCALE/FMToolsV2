@@ -19,21 +19,23 @@
     <AppShell
         slotSidebarLeft="bg-transparent"
         slotPageHeader="bg-transparent"
-        regionPage="bg-transparent"
+        regionPage="bg-transparent scroll-smooth overflow-y-auto"
     >
         <svelte:fragment slot="header">
             <Navbar />
         </svelte:fragment>
 
-        <div class="container mx-auto p-4 md:p-8 max-w-7xl">
-            <slot />
-        </div>
+        <!-- Main Content Wrapper with Flex Column for Footer positioning -->
+        <div class="min-h-full flex flex-col justify-between">
+            <div class="container mx-auto p-4 md:p-8 max-w-7xl flex-1">
+                <slot />
+            </div>
 
-        <svelte:fragment slot="pageFooter">
-            <div
-                class="bg-violet-900/40 backdrop-blur-md border-t border-white/5 p-6 text-center text-sm text-white/50"
+            <!-- Footer component moved inside main flow -->
+            <footer
+                class="bg-violet-900/40 backdrop-blur-md border-t border-white/5 p-6 text-center text-sm text-white/50 mt-12"
             >
-                <p>
+                <div>
                     {$_("footer.copyright")}
                     <span class="mx-2">•</span>
                     <a
@@ -44,7 +46,7 @@
                     >
                         {$_("footer.based_on")}
                     </a>
-                </p>
+                </div>
                 <div class="mt-4">
                     <a
                         href="https://liberapay.com/TonyBoySUPER/donate"
@@ -62,8 +64,8 @@
                         >
                     </a>
                 </div>
-            </div>
-        </svelte:fragment>
+            </footer>
+        </div>
     </AppShell>
 {:else}
     <div class="h-screen w-full flex items-center justify-center bg-slate-900">
