@@ -4,15 +4,16 @@
     import {
         PERSONALITIES,
         MEDIA_HANDLINGS,
+        getCompatibleMedia,
         calculateHiddenAttributes,
-        getRangeColor,
         getVisibleProjects,
         applyProjects,
-        type HiddenAttributes,
+        getRangeColor,
         type PlayerProjects,
+        type CalculationResult,
     } from "$lib/logic/hidden-notes";
 
-    let determination = $state(10);
+    let determination = $state(1);
     let selectedPersonality = $state<string | null>(null);
     let selectedMedia = $state<string | null>(null);
 
@@ -24,8 +25,18 @@
         captain: false,
     });
 
+    // Médias compatibles selon la personnalité
+    let compatibleMedia = $derived(getCompatibleMedia(selectedPersonality));
+
+    // Reset media when personality changes and media is incompatible
+    $effect(() => {
+        if (selectedMedia && !compatibleMedia.includes(selectedMedia)) {
+            selectedMedia = null;
+        }
+    });
+
     // Calcul des attributs de base
-    let baseAttributes = $derived(
+    let baseResult = $derived(
         calculateHiddenAttributes(
             selectedPersonality,
             selectedMedia,
@@ -33,25 +44,32 @@
         ),
     );
 
+    // Clamp determination to valid range
+    $effect(() => {
+        if (determination < baseResult.detMin) {
+            determination = baseResult.detMin;
+        }
+        if (determination > baseResult.detMax) {
+            determination = baseResult.detMax;
+        }
+    });
+
     // Projets visibles selon les attributs actuels
     let visibleProjects = $derived(
-        getVisibleProjects(baseAttributes, determination),
+        getVisibleProjects(baseResult, determination),
     );
 
     // Attributs finaux après application des projets
-    let finalResult = $derived(
-        applyProjects(baseAttributes, projects, determination),
-    );
+    let finalData = $derived(applyProjects(baseResult, projects));
+    let result = $derived(finalData.result);
+    let minDetermination = $derived(finalData.minDetermination);
 
-    let attributes = $derived(finalResult.attributes);
-    let minDetermination = $derived(finalResult.minDetermination);
-
-    // Recalculer la détermination effective
+    // Effective determination
     let effectiveDetermination = $derived(
         Math.max(determination, minDetermination),
     );
 
-    const attributeKeys: (keyof HiddenAttributes)[] = [
+    const attributeKeys = [
         "professionalism",
         "pressure",
         "temperament",
@@ -59,7 +77,37 @@
         "loyalty",
         "sportsmanship",
         "controversy",
-    ];
+    ] as const;
+
+    const attrMap: Record<
+        string,
+        {
+            min: keyof CalculationResult;
+            mid: keyof CalculationResult;
+            max: keyof CalculationResult;
+        }
+    > = {
+        professionalism: { min: "minPro", mid: "midPro", max: "maxPro" },
+        pressure: { min: "minPre", mid: "midPre", max: "maxPre" },
+        temperament: { min: "minTemp", mid: "midTemp", max: "maxTemp" },
+        ambition: { min: "minAmb", mid: "midAmb", max: "maxAmb" },
+        loyalty: { min: "minFid", mid: "midFid", max: "maxFid" },
+        sportsmanship: { min: "minFp", mid: "midFp", max: "maxFp" },
+        controversy: { min: "minPol", mid: "midPol", max: "maxPol" },
+    };
+
+    function getAttrValues(attr: string): {
+        min: number;
+        mid: number | null;
+        max: number;
+    } {
+        const keys = attrMap[attr];
+        return {
+            min: result[keys.min] as number,
+            mid: result[keys.mid] as number | null,
+            max: result[keys.max] as number,
+        };
+    }
 
     function getTranslationKey(attr: string): string {
         return `hidden_notes.${attr}`;
@@ -70,9 +118,18 @@
     }
 
     function reset() {
-        determination = 10;
+        determination = 1;
         selectedPersonality = null;
         selectedMedia = null;
+        projects = {
+            shortTermPlaytime: false,
+            longTermPlaytime: false,
+            trophy: false,
+            captain: false,
+        };
+    }
+
+    function resetProjects() {
         projects = {
             shortTermPlaytime: false,
             longTermPlaytime: false,
@@ -102,12 +159,14 @@
                     type="number"
                     id="determination"
                     class="form-input"
-                    min={minDetermination}
-                    max="20"
+                    min={Math.max(baseResult.detMin, minDetermination)}
+                    max={baseResult.detMax}
                     bind:value={determination}
                 />
-                {#if minDetermination > 1}
-                    <span class="min-det-hint">Min: {minDetermination}</span>
+                {#if minDetermination > 1 || baseResult.detMin > 1 || baseResult.detMax < 20}
+                    <span class="det-hint">
+                        ({Math.max(baseResult.detMin, minDetermination)} - {baseResult.detMax})
+                    </span>
                 {/if}
             </div>
 
@@ -119,6 +178,7 @@
                     id="personality"
                     class="form-select"
                     bind:value={selectedPersonality}
+                    onchange={resetProjects}
                 >
                     <option value={null}>{$_("common.select")}</option>
                     {#each PERSONALITIES as p}
@@ -137,9 +197,10 @@
                     id="media"
                     class="form-select"
                     bind:value={selectedMedia}
+                    onchange={resetProjects}
                 >
                     <option value={null}>{$_("common.select")}</option>
-                    {#each MEDIA_HANDLINGS as m}
+                    {#each MEDIA_HANDLINGS.filter( (m) => compatibleMedia.includes(m.key), ) as m}
                         <option value={m.key}>{$_(`media.${m.key}`)}</option>
                     {/each}
                 </select>
@@ -165,35 +226,56 @@
                 </thead>
                 <tbody>
                     {#each attributeKeys as attr}
-                        {@const range = attributes[attr]}
-                        {@const color = getRangeColor(range)}
+                        {@const values = getAttrValues(attr)}
+                        {@const isControversy = attr === "controversy"}
+                        {@const color =
+                            values.mid !== null
+                                ? getRangeColor(
+                                      values.mid,
+                                      values.mid,
+                                      isControversy,
+                                  )
+                                : getRangeColor(
+                                      values.min,
+                                      values.max,
+                                      isControversy,
+                                  )}
                         <tr>
                             <td class="attr-name">
                                 {$_(getTranslationKey(attr))}
                                 <Tooltip text={$_(getDescriptionKey(attr))} />
                             </td>
-                            <td class="text-center">
-                                <span class="badge badge-{color}"
-                                    >{range[0]}</span
-                                >
-                            </td>
-                            <td class="range-bar-cell">
-                                <div class="range-bar">
-                                    <div
-                                        class="range-fill range-{color}"
-                                        style="left: {((range[0] - 1) / 19) *
-                                            100}%; width: {((range[1] -
-                                            range[0]) /
-                                            19) *
-                                            100}%"
-                                    ></div>
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge badge-{color}"
-                                    >{range[1]}</span
-                                >
-                            </td>
+                            {#if values.mid !== null}
+                                <td class="text-center" colspan="3">
+                                    <span class="badge badge-{color}"
+                                        >{values.mid}</span
+                                    >
+                                </td>
+                            {:else}
+                                <td class="text-center">
+                                    <span class="badge badge-{color}"
+                                        >{values.min}</span
+                                    >
+                                </td>
+                                <td class="range-bar-cell">
+                                    <div class="range-bar">
+                                        <div
+                                            class="range-fill range-{color}"
+                                            style="left: {((values.min - 1) /
+                                                19) *
+                                                100}%; width: {((values.max -
+                                                values.min) /
+                                                19) *
+                                                100}%"
+                                        ></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-{color}"
+                                        >{values.max}</span
+                                    >
+                                </td>
+                            {/if}
                         </tr>
                     {/each}
                 </tbody>
@@ -261,6 +343,10 @@
                         {/if}
                     </div>
                 </div>
+            {:else if selectedPersonality}
+                <p class="no-projects-info">
+                    <i>{$_("hidden_notes.projects_subtitle")}</i>
+                </p>
             {/if}
         </div>
     </div>
@@ -308,7 +394,7 @@
         top: 100px;
     }
 
-    .min-det-hint {
+    .det-hint {
         font-size: 0.75rem;
         color: var(--color-accent-primary);
         margin-left: 0.5rem;
@@ -422,6 +508,15 @@
         font-size: 0.95rem;
     }
 
+    .no-projects-info {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-border);
+        text-align: center;
+        color: var(--color-text-muted);
+        font-size: 0.9rem;
+    }
+
     .links-section {
         margin-top: 2rem;
         padding-top: 2rem;
@@ -474,24 +569,5 @@
             opacity: 1;
             transform: translateY(0);
         }
-    }
-
-    .title-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .fm26-badge {
-        height: 36px;
-        width: auto;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        transition: transform 0.2s ease;
-    }
-
-    .fm26-badge:hover {
-        transform: scale(1.05);
     }
 </style>

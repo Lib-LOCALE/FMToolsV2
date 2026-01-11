@@ -1,172 +1,204 @@
 // Types et données pour l'outil des notes cachées
 // Basé sur les recherches de Kinito et DoctorDim
-
-export interface PersonalityData {
-    key: string;
-    professionalism: [number, number];
-    ambition: [number, number];
-    loyalty: [number, number];
-    pressure: [number, number];
-    sportsmanship: [number, number];
-    temperament: [number, number];
-    controversy: [number, number];
-}
-
-export interface MediaHandlingData {
-    key: string;
-    temperament: [number, number];
-    controversy: [number, number];
-}
-
-// Personnalités et leurs attributs cachés associés
-// Format: [min, max] pour chaque attribut
-export const PERSONALITIES: PersonalityData[] = [
-    // Excellentes personnalités
-    { key: 'model_citizen', professionalism: [15, 20], ambition: [15, 20], loyalty: [15, 20], pressure: [15, 20], sportsmanship: [15, 20], temperament: [15, 20], controversy: [1, 5] },
-    { key: 'professional', professionalism: [15, 20], ambition: [10, 20], loyalty: [10, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'perfectionist', professionalism: [15, 20], ambition: [15, 20], loyalty: [1, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'determined', professionalism: [10, 20], ambition: [10, 20], loyalty: [10, 20], pressure: [15, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'resolute', professionalism: [10, 20], ambition: [10, 20], loyalty: [10, 20], pressure: [15, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'ambitious', professionalism: [10, 20], ambition: [15, 20], loyalty: [1, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'driven', professionalism: [10, 20], ambition: [15, 20], loyalty: [1, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'leader', professionalism: [10, 20], ambition: [15, 20], loyalty: [10, 20], pressure: [15, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'iron_willed', professionalism: [10, 20], ambition: [10, 20], loyalty: [10, 20], pressure: [15, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'spirited', professionalism: [10, 20], ambition: [15, 20], loyalty: [10, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-
-    // Bonnes personnalités
-    { key: 'devoted', professionalism: [10, 20], ambition: [1, 20], loyalty: [15, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'loyal', professionalism: [10, 20], ambition: [1, 20], loyalty: [15, 20], pressure: [10, 20], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'honest', professionalism: [10, 20], ambition: [10, 20], loyalty: [10, 20], pressure: [10, 20], sportsmanship: [15, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'sporting', professionalism: [10, 20], ambition: [10, 20], loyalty: [10, 20], pressure: [10, 20], sportsmanship: [15, 20], temperament: [10, 20], controversy: [1, 5] },
-    { key: 'balanced', professionalism: [10, 14], ambition: [10, 14], loyalty: [10, 14], pressure: [10, 14], sportsmanship: [10, 14], temperament: [10, 14], controversy: [5, 10] },
-
-    // Personnalités moyennes
-    { key: 'fairly_professional', professionalism: [10, 14], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 15] },
-    { key: 'fairly_determined', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [10, 14], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 15] },
-    { key: 'fairly_ambitious', professionalism: [1, 20], ambition: [10, 14], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 15] },
-    { key: 'fairly_loyal', professionalism: [1, 20], ambition: [1, 20], loyalty: [10, 14], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 15] },
-    { key: 'fairly_sporting', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [10, 14], temperament: [1, 20], controversy: [1, 15] },
-
-    // Personnalités problématiques
-    { key: 'casual', professionalism: [1, 9], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'slack', professionalism: [1, 9], ambition: [1, 9], loyalty: [1, 20], pressure: [1, 9], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'temperamental', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 9], temperament: [1, 9], controversy: [10, 20] },
-    { key: 'low_determination', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 9], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'mercenary', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 9], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'unsporting', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 9], temperament: [1, 20], controversy: [10, 20] },
-    { key: 'unambitious', professionalism: [1, 20], ambition: [1, 9], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'easily_discouraged', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 9], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'spineless', professionalism: [1, 9], ambition: [1, 9], loyalty: [1, 20], pressure: [1, 9], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'light_hearted', professionalism: [1, 9], ambition: [1, 9], loyalty: [1, 20], pressure: [1, 9], sportsmanship: [10, 20], temperament: [10, 20], controversy: [1, 10] },
-    { key: 'fickle', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 9], pressure: [1, 20], sportsmanship: [1, 20], temperament: [1, 20], controversy: [1, 20] },
-    { key: 'controversial', professionalism: [1, 20], ambition: [1, 20], loyalty: [1, 20], pressure: [1, 20], sportsmanship: [1, 9], temperament: [1, 9], controversy: [15, 20] }
-];
-
-// Comportement médiatique et son impact sur les attributs
-export const MEDIA_HANDLINGS: MediaHandlingData[] = [
-    { key: 'quiet', temperament: [15, 20], controversy: [1, 5] },
-    { key: 'reserved', temperament: [12, 18], controversy: [1, 8] },
-    { key: 'composed', temperament: [12, 18], controversy: [1, 8] },
-    { key: 'balanced', temperament: [10, 14], controversy: [5, 10] },
-    { key: 'media_friendly', temperament: [10, 16], controversy: [5, 12] },
-    { key: 'outspoken', temperament: [5, 12], controversy: [10, 15] },
-    { key: 'evasive', temperament: [8, 14], controversy: [8, 14] },
-    { key: 'confrontational', temperament: [1, 9], controversy: [12, 18] },
-    { key: 'controversial', temperament: [1, 9], controversy: [15, 20] }
-];
+// Porté depuis https://github.com/Gilgiltsu/FMTools
 
 export interface HiddenAttributes {
-    professionalism: [number, number];
-    ambition: [number, number];
-    loyalty: [number, number];
-    pressure: [number, number];
-    sportsmanship: [number, number];
-    temperament: [number, number];
-    controversy: [number, number];
+    professionalism: number | [number, number];
+    pressure: number | [number, number];
+    temperament: number | [number, number];
+    ambition: number | [number, number];
+    loyalty: number | [number, number];
+    sportsmanship: number | [number, number];
+    controversy: number | [number, number];
 }
 
-export function calculateHiddenAttributes(
-    personalityKey: string | null,
-    mediaKey: string | null,
-    determination: number
-): HiddenAttributes {
-    // Valeurs par défaut si aucune sélection
-    const defaultRange: [number, number] = [1, 20];
-
-    let result: HiddenAttributes = {
-        professionalism: [...defaultRange],
-        ambition: [...defaultRange],
-        loyalty: [...defaultRange],
-        pressure: [...defaultRange],
-        sportsmanship: [...defaultRange],
-        temperament: [...defaultRange],
-        controversy: [...defaultRange]
-    };
-
-    // Appliquer les modifications de la personnalité
-    if (personalityKey) {
-        const personality = PERSONALITIES.find(p => p.key === personalityKey);
-        if (personality) {
-            result.professionalism = [...personality.professionalism];
-            result.ambition = [...personality.ambition];
-            result.loyalty = [...personality.loyalty];
-            result.pressure = [...personality.pressure];
-            result.sportsmanship = [...personality.sportsmanship];
-            result.temperament = [...personality.temperament];
-            result.controversy = [...personality.controversy];
-        }
-    }
-
-    // Appliquer les modifications du comportement médiatique
-    if (mediaKey) {
-        const media = MEDIA_HANDLINGS.find(m => m.key === mediaKey);
-        if (media) {
-            // Affiner les estimations de tempérament et controverse
-            result.temperament = intersectRanges(result.temperament, media.temperament);
-            result.controversy = intersectRanges(result.controversy, media.controversy);
-        }
-    }
-
-    // La détermination affecte l'attribut "pression"
-    if (determination >= 1 && determination <= 20) {
-        // La détermination haute corrèle avec une bonne gestion de la pression
-        if (determination >= 15) {
-            result.pressure = intersectRanges(result.pressure, [12, 20]);
-        } else if (determination >= 10) {
-            result.pressure = intersectRanges(result.pressure, [8, 16]);
-        } else {
-            result.pressure = intersectRanges(result.pressure, [1, 12]);
-        }
-    }
-
-    return result;
+export interface PersonalityConfig {
+    key: string;
+    detMin?: number;
+    detMax?: number;
+    minPro?: number;
+    midPro?: number;
+    maxPro?: number;
+    minPre?: number;
+    midPre?: number;
+    maxPre?: number;
+    minTemp?: number;
+    midTemp?: number;
+    maxTemp?: number;
+    minAmb?: number;
+    midAmb?: number;
+    maxAmb?: number;
+    minFid?: number;
+    midFid?: number;
+    maxFid?: number;
+    minFp?: number;
+    midFp?: number;
+    maxFp?: number;
+    minPol?: number;
+    midPol?: number;
+    maxPol?: number;
+    deter?: number[];
+    cas?: number[];
 }
 
-// Intersection de deux plages
-function intersectRanges(a: [number, number], b: [number, number]): [number, number] {
-    const min = Math.max(a[0], b[0]);
-    const max = Math.min(a[1], b[1]);
-    if (min > max) return a; // Si pas d'intersection, garder la première
-    return [min, max];
+export interface MediaConfig {
+    key: string;
+    minTemp?: number;
+    midTemp?: number;
+    maxTemp?: number;
+    minPre?: number;
+    maxPre?: number;
+    minPro?: number;
+    maxPro?: number;
+    minFp?: number;
+    maxFp?: number;
+    minFid?: number;
+    maxFid?: number;
+    minPol?: number;
+    maxPol?: number;
+    med?: number[];
 }
 
-// Fonction pour obtenir la couleur selon la plage
-export function getRangeColor(range: [number, number]): 'success' | 'warning' | 'error' | 'neutral' {
-    const avg = (range[0] + range[1]) / 2;
-    if (avg >= 15) return 'success';
-    if (avg >= 10) return 'neutral';
-    if (avg >= 5) return 'warning';
-    return 'error';
-}
+// Toutes les personnalités avec leurs configurations
+export const PERSONALITIES: PersonalityConfig[] = [
+    { key: 'Amb', detMax: 17, minAmb: 16, maxAmb: 19, minFid: 7, maxFid: 9, deter: [2], cas: [0, 1] },
+    { key: 'AsAmb', detMax: 14, minAmb: 15, maxPro: 14, deter: [2, 3, 4, 5], cas: [0, 2, 5] },
+    { key: 'AsDe', detMin: 15, detMax: 17, maxPro: 14, minFp: 5, maxPre: 16, cas: [0, 2, 3, 4, 5] },
+    { key: 'AsFP', detMax: 14, maxPro: 14, minFp: 15, maxFid: 14, maxAmb: 14, deter: [1, 2, 3, 4], cas: [0, 5] },
+    { key: 'AsLo', detMax: 14, minAmb: 6, maxAmb: 14, maxPro: 14, minFid: 15, deter: [1, 2, 3, 4, 5], cas: [0, 4, 5] },
+    { key: 'AsPro', detMax: 14, minPro: 15, deter: [1, 3, 4, 5], cas: [1, 2, 3, 4, 5] },
+    { key: 'CiMo', detMin: 14, minAmb: 12, minPro: 15, minFp: 15, minFid: 15, minPre: 14, minTemp: 15 },
+    { key: 'Dec', detMax: 9, minPro: 2, maxPro: 4, minTemp: 5 },
+    { key: 'Del', detMin: 11, detMax: 17, midFp: 1, cas: [0, 1, 2, 3] },
+    { key: 'Det', detMin: 15, detMax: 17, minPro: 15, minFp: 5, maxPre: 16, cas: [1, 2, 3, 4, 5] },
+    { key: 'Dev', detMin: 6, detMax: 17, minAmb: 6, maxAmb: 7, midFid: 20, deter: [2, 5], cas: [0, 1] },
+    { key: 'Ef', detMin: 15, detMax: 17, minFp: 5, midPre: 20, deter: [1, 3, 4, 5], cas: [0, 1, 2, 3, 4] },
+    { key: 'Enj', detMax: 17, maxPro: 17, minFp: 15, minPre: 15, minTemp: 10, deter: [1, 2, 4, 6], cas: [2, 3, 4] },
+    { key: 'Ent', detMax: 17, minPro: 11, maxPro: 17, maxFp: 14, minPre: 15, minTemp: 10, deter: [1, 4, 5, 6], cas: [2, 3, 4] },
+    { key: 'Eq', detMax: 14, maxAmb: 14, maxPro: 14, maxFp: 14, maxFid: 14, deter: [1, 2, 3, 5], cas: [0, 3, 5] },
+    { key: 'Fac', detMax: 1, maxAmb: 9, minPro: 5, maxFp: 17, cas: [0, 1, 3] },
+    { key: 'FaDe', detMin: 2, detMax: 5, maxAmb: 9, minPro: 5, maxFp: 17, cas: [0, 1, 3] },
+    { key: 'FaCo', detMax: 9, minPro: 5, maxFp: 17, minPre: 2, maxPre: 3, deter: [1], cas: [0, 1, 2, 3, 4] },
+    { key: 'FP', detMax: 9, minPro: 5, minFp: 18, maxFp: 19, cas: [0, 1, 2, 3] },
+    { key: 'Fo', maxPro: 10, maxTemp: 4 },
+    { key: 'Fri', detMax: 9, minPro: 5, maxFp: 17, midPre: 1, deter: [1], cas: [0, 1, 2, 3, 4] },
+    { key: 'Ho', detMax: 9, minPro: 5, midFp: 20, cas: [0, 1, 2, 3] },
+    { key: 'In', detMax: 9, minTemp: 5, midPro: 1 },
+    { key: 'Jo', detMax: 17, maxPro: 10, maxFp: 14, minPre: 15, minTemp: 10, deter: [1, 2, 4, 5, 6], cas: [2, 3, 4] },
+    { key: 'Le', minPro: 1 },
+    { key: 'Lene', detMin: 20, minPro: 1 },
+    { key: 'LeCh', minFp: 18, minTemp: 18 },
+    { key: 'Lo', detMin: 6, detMax: 17, minAmb: 6, maxAmb: 7, minFid: 18, maxFid: 19, deter: [2, 5], cas: [0, 1] },
+    { key: 'Me', detMax: 17, minAmb: 16, maxFid: 3, deter: [2], cas: [0, 1] },
+    { key: 'Modpro', midPro: 20, minTemp: 10 },
+    { key: 'Mot', detMin: 18, minAmb: 12 },
+    { key: 'Ob', detMin: 18, maxAmb: 11 },
+    { key: 'Per', detMin: 14, minAmb: 14, minPro: 14, maxTemp: 9 },
+    { key: 'Pro', minPro: 18, minTemp: 10 },
+    { key: 'Rea', detMin: 11, detMax: 17, minFp: 2, maxFp: 4, cas: [0, 1, 2, 3] },
+    { key: 'Res', detMin: 15, detMax: 17, minFp: 5, minPre: 17, maxPre: 19, cas: [0, 1, 2, 3, 4] },
+    { key: 'SAmb', detMax: 17, maxAmb: 5, minFid: 11, deter: [2], cas: [0, 1] },
+    { key: 'TreAmb', detMax: 17, midAmb: 20, maxFid: 9, minFid: 7, deter: [2], cas: [0, 1] },
+    { key: 'TreLoy', detMin: 6, detMax: 17, minAmb: 6, maxAmb: 7, midFid: 20, deter: [2, 5], cas: [0, 1] },
+    { key: 'Vers', detMax: 17, minAmb: 16, minFid: 4, maxFid: 6, deter: [2], cas: [0, 1] }
+];
 
-// ========== PROJETS DU JOUEUR ==========
-// Basé sur la logique de l'outil original de Gilgiltsu
+// Médias compatibles par personnalité
+export const PERSONALITY_MEDIA_MAP: Record<string, string[]> = {
+    'Amb': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon'],
+    'TreAmb': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon'],
+    'Vers': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon'],
+    'Me': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon'],
+    'CiMo': ['', 'Equi', 'EvaImp', 'Imp', 'Re', 'Spo', 'SpoImp'],
+    'AsAmb': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Ir', 'IrCon', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'AsDe': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Ir', 'IrCon', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Eq': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Ir', 'IrCon', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'AsLo': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Ir', 'IrCon', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'AsFP': ['', 'ApMe', 'ApMeIr', 'ApMeVer', 'Equi', 'Ir', 'Spo', 'SpoIr', 'SpoVer', 'Ver'],
+    'Dec': ['', 'ApMe', 'ApMeCon', 'ApMeVer', 'ApMeVerCon', 'Equi', 'Spo', 'SpoCon', 'SpoVer', 'SpoVerCon', 'Ver'],
+    'In': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeVer', 'ApMeVerCon', 'Equi', 'Imp', 'Spo', 'SpoCon', 'SpoImp', 'SpoVer', 'SpoVerCon', 'Ver'],
+    'Jo': ['', 'ApMe', 'ApMeImp', 'Equi', 'Imp', 'Spo', 'SpoImp'],
+    'FaCo': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Fri': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Enj': ['', 'ApMe', 'ApMeImp', 'Equi', 'Eva', 'EvaImp', 'EvaRes', 'Imp', 'Spo', 'SpoImp'],
+    'Ent': ['', 'ApMe', 'ApMeImp', 'Equi', 'Eva', 'EvaImp', 'EvaRes', 'Imp', 'Spo', 'SpoImp'],
+    'Modpro': ['', 'ApMe', 'ApMeImp', 'ApMeRe', 'Equi', 'Eva', 'EvaImp', 'EvaRes', 'Imp', 'Re', 'Spo', 'SpoImp'],
+    'Pro': ['', 'ApMe', 'ApMeImp', 'ApMeRe', 'Equi', 'Eva', 'EvaImp', 'EvaRes', 'Imp', 'Re', 'Spo', 'SpoImp'],
+    'SAmb': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'FP': ['', 'ApMe', 'ApMeImp', 'ApMeIr', 'ApMeRe', 'ApMeVer', 'Equi', 'Eva', 'EvaImp', 'EvaIr', 'EvaRes', 'EvaVer', 'Imp', 'Ir', 'Re', 'Spo', 'SpoImp', 'SpoIr', 'SpoVer', 'Ver'],
+    'Ho': ['', 'ApMe', 'ApMeImp', 'ApMeIr', 'ApMeRe', 'ApMeVer', 'Equi', 'Eva', 'EvaImp', 'EvaIr', 'EvaRes', 'EvaVer', 'Imp', 'Ir', 'Re', 'Spo', 'SpoImp', 'SpoIr', 'SpoVer', 'Ver'],
+    'Per': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Fo': ['', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Ir', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver'],
+    'Lo': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'TreLoy': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'AsPro': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Del': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIrCon', 'ApMeRe', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIrCon', 'EvaRes', 'EvaVerCon', 'Imp', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIrCon', 'SpoVerCon', 'VerCon'],
+    'Ef': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Dev': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Fac': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'FaDe': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Le': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Lene': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Mot': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Ob': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Rea': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIrCon', 'ApMeRe', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIrCon', 'EvaRes', 'EvaVerCon', 'Imp', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoImp', 'SpoIrCon', 'SpoVerCon', 'VerCon'],
+    'Res': ['', 'ApMe', 'ApMeCon', 'ApMeImp', 'ApMeIr', 'ApMeIrCon', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaImp', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Imp', 'Ir', 'IrCon', 'Spo', 'SpoCon', 'SpoImp', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'Det': ['', 'ApMe', 'ApMeCon', 'ApMeIr', 'ApMeIrCon', 'ApMeRe', 'ApMeVer', 'ApMeVerCon', 'Con', 'Equi', 'Eva', 'EvaCon', 'EvaIr', 'EvaIrCon', 'EvaRes', 'EvaVer', 'EvaVerCon', 'Ir', 'IrCon', 'Re', 'Spo', 'SpoCon', 'SpoIr', 'SpoIrCon', 'SpoVer', 'SpoVerCon', 'Ver', 'VerCon'],
+    'LeCh': ['', 'ApMe', 'ApMeImp', 'ApMeRe', 'Equi', 'Imp', 'Re', 'Spo', 'SpoImp']
+};
+
+// Tous les rapports médias
+export const MEDIA_HANDLINGS: MediaConfig[] = [
+    { key: 'ApMe', minTemp: 7, maxPol: 14, med: [1, 2, 3, 4] },
+    { key: 'ApMeCon', midTemp: 7, maxPol: 14, maxFp: 7, med: [1] },
+    { key: 'ApMeImp', minTemp: 15, maxPol: 14, minPre: 15 },
+    { key: 'ApMeIr', maxTemp: 2, maxPol: 14, minFp: 8, minPro: 11, med: [1] },
+    { key: 'ApMeIrCon', maxTemp: 2, maxPol: 14, maxFp: 7, minPro: 11, med: [1] },
+    { key: 'ApMeRe', minPro: 15, minTemp: 7, maxPol: 5, maxPre: 14, maxFid: 10, med: [2, 3] },
+    { key: 'ApMeVer', minTemp: 3, maxTemp: 6, maxPol: 14, minFp: 8, med: [1] },
+    { key: 'ApMeVerCon', minTemp: 3, maxTemp: 6, maxPol: 14, maxFp: 7, med: [1] },
+    { key: 'Con', midTemp: 7, maxFp: 7, maxPol: 14, minFid: 11, minPro: 13, med: [1] },
+    { key: 'Equi', minTemp: 7, maxPol: 14, minFid: 11, med: [1, 2, 3, 4] },
+    { key: 'Eva', minPro: 15, maxPol: 14, minPol: 6, minPre: 15, minTemp: 7, maxTemp: 15, med: [2, 3] },
+    { key: 'EvaCon', minPro: 15, maxPol: 14, minPre: 15, midTemp: 7, maxFp: 7 },
+    { key: 'EvaImp', minPro: 15, maxPol: 14, minPre: 15, midTemp: 15 },
+    { key: 'EvaIr', minPro: 15, maxPol: 14, minPre: 15, maxTemp: 2, minFp: 8 },
+    { key: 'EvaIrCon', minPro: 15, maxPol: 14, minPre: 15, maxTemp: 2, maxFp: 7 },
+    { key: 'EvaRes', minPro: 15, maxPol: 5, minPre: 15, maxTemp: 15, minTemp: 7, med: [2, 3] },
+    { key: 'EvaVer', minPro: 15, maxPol: 14, minPre: 15, maxTemp: 6, minTemp: 3, minFp: 8 },
+    { key: 'EvaVerCon', minPro: 15, maxPol: 14, minPre: 15, maxTemp: 6, minTemp: 3, maxFp: 7 },
+    { key: 'Imp', minPre: 15, minTemp: 15, minFid: 11, maxPol: 14 },
+    { key: 'Ir', maxTemp: 2, minFid: 11, minPro: 11, maxPol: 14, minFp: 8, med: [1] },
+    { key: 'IrCon', maxTemp: 2, maxFp: 7, minFid: 11, minPro: 13, maxPol: 14, med: [1] },
+    { key: 'Re', minPro: 15, minTemp: 7, maxPol: 5, minFid: 11, med: [1, 2] },
+    { key: 'Spo', minPol: 15, minTemp: 7, med: [2, 3] },
+    { key: 'SpoCon', minPol: 15, maxFp: 7, midTemp: 7, med: [2, 3] },
+    { key: 'SpoImp', minPol: 15, minPre: 15, minTemp: 15 },
+    { key: 'SpoIr', minPol: 15, maxTemp: 2, minFp: 8, minPro: 11 },
+    { key: 'SpoIrCon', minPol: 15, maxTemp: 2, maxFp: 7, minPro: 11 },
+    { key: 'SpoVer', minPol: 15, maxTemp: 6, minTemp: 3, minFp: 8 },
+    { key: 'SpoVerCon', minPol: 15, maxTemp: 6, minTemp: 3, maxFp: 7 },
+    { key: 'Ver', maxTemp: 6, minTemp: 3, minFp: 8, maxPol: 14, minFid: 11, med: [1] },
+    { key: 'VerCon', maxTemp: 6, minTemp: 3, maxFp: 7, maxPol: 14, minFid: 11, minPro: 13, med: [1] }
+];
 
 export interface PlayerProjects {
-    shortTermPlaytime: boolean;  // Projet à court terme relatif au temps de jeu
-    longTermPlaytime: boolean;   // Projet à long terme relatif au temps de jeu
-    trophy: boolean;             // Projet de remporter un trophée
-    captain: boolean;            // Espère devenir capitaine
+    shortTermPlaytime: boolean;
+    longTermPlaytime: boolean;
+    trophy: boolean;
+    captain: boolean;
+}
+
+export interface CalculationResult {
+    minPro: number; midPro: number | null; maxPro: number;
+    minPre: number; midPre: number | null; maxPre: number;
+    minTemp: number; midTemp: number | null; maxTemp: number;
+    minAmb: number; midAmb: number | null; maxAmb: number;
+    minFid: number; midFid: number | null; maxFid: number;
+    minFp: number; midFp: number | null; maxFp: number;
+    minPol: number; midPol: number | null; maxPol: number;
+    detMin: number;
+    detMax: number;
 }
 
 export interface VisibleProjects {
@@ -177,37 +209,214 @@ export interface VisibleProjects {
     anyVisible: boolean;
 }
 
-/**
- * Détermine quels projets sont visibles en fonction des attributs actuels
- * Un projet n'apparaît que si les attributs permettent les valeurs requises
- */
-export function getVisibleProjects(
-    attributes: HiddenAttributes,
+// Obtenir les médias compatibles pour une personnalité
+export function getCompatibleMedia(personalityKey: string | null): string[] {
+    if (!personalityKey || !PERSONALITY_MEDIA_MAP[personalityKey]) {
+        return MEDIA_HANDLINGS.map(m => m.key);
+    }
+    return PERSONALITY_MEDIA_MAP[personalityKey];
+}
+
+// Fonction de calcul principale
+export function calculateHiddenAttributes(
+    personalityKey: string | null,
+    mediaKey: string | null,
     determination: number
-): VisibleProjects {
-    // Les projets ne s'affichent que si l'ambition max >= 14
-    const canShowProjects = attributes.ambition[1] >= 14;
+): CalculationResult {
+    // Initialiser les valeurs par défaut
+    const result: CalculationResult = {
+        minPro: 1, midPro: null, maxPro: 20,
+        minPre: 1, midPre: null, maxPre: 20,
+        minTemp: 1, midTemp: null, maxTemp: 20,
+        minAmb: 1, midAmb: null, maxAmb: 20,
+        minFid: 1, midFid: null, maxFid: 20,
+        minFp: 1, midFp: null, maxFp: 20,
+        minPol: 1, midPol: null, maxPol: 20,
+        detMin: 1,
+        detMax: 20
+    };
 
-    // Court terme temps de jeu: nécessite pression max >= 14
-    const shortTermPlaytime = canShowProjects &&
-        attributes.pressure[1] >= 14 &&
-        attributes.ambition[0] < 14; // Pas visible si ambition min >= 14
+    // Appliquer la personnalité
+    if (personalityKey) {
+        const personality = PERSONALITIES.find(p => p.key === personalityKey);
+        if (personality) {
+            applyPersonality(result, personality, determination);
+        }
+    }
 
-    // Long terme temps de jeu: visible si pression peut être <= 13
-    const longTermPlaytime = canShowProjects &&
-        attributes.pressure[0] < 14 &&
-        attributes.ambition[0] < 14;
+    // Appliquer le média
+    if (mediaKey) {
+        const media = MEDIA_HANDLINGS.find(m => m.key === mediaKey);
+        if (media) {
+            applyMedia(result, media);
+        }
+    }
 
-    // Trophée: nécessite détermination >= 14 possible
-    const trophy = canShowProjects &&
-        determination >= 1 && // Toujours possible si det peut être ajustée
-        attributes.ambition[0] < 14;
+    // Appliquer les ajustements
+    applyAdjustments(result, personalityKey, mediaKey, determination);
 
-    // Capitaine: nécessite fidélité max >= 14
-    const captain = canShowProjects &&
-        attributes.loyalty[1] >= 14 &&
-        attributes.ambition[0] < 14 &&
-        attributes.loyalty[0] < 14;
+    // Unifier les valeurs (si min == max, utiliser mid)
+    unifyValues(result);
+
+    return result;
+}
+
+function applyPersonality(result: CalculationResult, p: PersonalityConfig, det: number): void {
+    if (p.detMin !== undefined) result.detMin = p.detMin;
+    if (p.detMax !== undefined) result.detMax = p.detMax;
+    if (p.minPro !== undefined) result.minPro = Math.max(result.minPro, p.minPro);
+    if (p.midPro !== undefined) result.midPro = p.midPro;
+    if (p.maxPro !== undefined) result.maxPro = Math.min(result.maxPro, p.maxPro);
+    if (p.minPre !== undefined) result.minPre = Math.max(result.minPre, p.minPre);
+    if (p.midPre !== undefined) result.midPre = p.midPre;
+    if (p.maxPre !== undefined) result.maxPre = Math.min(result.maxPre, p.maxPre);
+    if (p.minTemp !== undefined) result.minTemp = Math.max(result.minTemp, p.minTemp);
+    if (p.midTemp !== undefined) result.midTemp = p.midTemp;
+    if (p.maxTemp !== undefined) result.maxTemp = Math.min(result.maxTemp, p.maxTemp);
+    if (p.minAmb !== undefined) result.minAmb = Math.max(result.minAmb, p.minAmb);
+    if (p.midAmb !== undefined) result.midAmb = p.midAmb;
+    if (p.maxAmb !== undefined) result.maxAmb = Math.min(result.maxAmb, p.maxAmb);
+    if (p.minFid !== undefined) result.minFid = Math.max(result.minFid, p.minFid);
+    if (p.midFid !== undefined) result.midFid = p.midFid;
+    if (p.maxFid !== undefined) result.maxFid = Math.min(result.maxFid, p.maxFid);
+    if (p.minFp !== undefined) result.minFp = Math.max(result.minFp, p.minFp);
+    if (p.midFp !== undefined) result.midFp = p.midFp;
+    if (p.maxFp !== undefined) result.maxFp = Math.min(result.maxFp, p.maxFp);
+    if (p.minPol !== undefined) result.minPol = Math.max(result.minPol, p.minPol);
+    if (p.midPol !== undefined) result.midPol = p.midPol;
+    if (p.maxPol !== undefined) result.maxPol = Math.min(result.maxPol, p.maxPol);
+
+    // Appliquer les contraintes deter
+    if (p.deter) {
+        for (const d of p.deter) {
+            applyDeter(result, d, det);
+        }
+    }
+
+    // Appliquer les contraintes cas
+    if (p.cas) {
+        for (const c of p.cas) {
+            applyCas(result, c);
+        }
+    }
+}
+
+function applyMedia(result: CalculationResult, m: MediaConfig): void {
+    if (m.minTemp !== undefined && result.minTemp < m.minTemp) result.minTemp = m.minTemp;
+    if (m.midTemp !== undefined) result.midTemp = m.midTemp;
+    if (m.maxTemp !== undefined && result.maxTemp > m.maxTemp) result.maxTemp = m.maxTemp;
+    if (m.minPre !== undefined && result.minPre < m.minPre) result.minPre = m.minPre;
+    if (m.maxPre !== undefined && result.maxPre > m.maxPre) result.maxPre = m.maxPre;
+    if (m.minPro !== undefined && result.minPro < m.minPro) result.minPro = m.minPro;
+    if (m.maxPro !== undefined && result.maxPro > m.maxPro) result.maxPro = m.maxPro;
+    if (m.minFp !== undefined && result.minFp < m.minFp) result.minFp = m.minFp;
+    if (m.maxFp !== undefined && result.maxFp > m.maxFp) result.maxFp = m.maxFp;
+    if (m.minFid !== undefined && result.minFid < m.minFid) result.minFid = m.minFid;
+    if (m.maxFid !== undefined && result.maxFid > m.maxFid) result.maxFid = m.maxFid;
+    if (m.minPol !== undefined && result.minPol < m.minPol) result.minPol = m.minPol;
+    if (m.maxPol !== undefined && result.maxPol > m.maxPol) result.maxPol = m.maxPol;
+
+    if (m.med) {
+        for (const md of m.med) {
+            applyMed(result, md);
+        }
+    }
+}
+
+function applyDeter(result: CalculationResult, e: number, det: number): void {
+    if (e === 1 && det <= 5 && result.minAmb < 10) result.minAmb = 10;
+    if (e === 2 && det <= 9 && result.minPro < 5) result.minPro = 5;
+    if (e === 3 && det <= 9 && result.minPre < 4) result.minPre = 4;
+    if (e === 4 && det <= 9 && result.maxFp > 17) result.maxFp = 17;
+    if (e === 5 && det >= 11 && result.minFp < 5) result.minFp = 5;
+    if (e === 6 && det >= 15) { result.minPre = 15; result.maxPre = 16; }
+}
+
+function applyCas(result: CalculationResult, e: number): void {
+    if (e === 0) {
+        if (result.maxTemp < 5 && result.minPro < 11) result.minPro = 11;
+        if (result.maxPro < 11 && result.minTemp < 5) result.minTemp = 5;
+    }
+    if (e === 1) {
+        if (result.minPro > 17 && result.maxTemp > 9) result.maxTemp = 9;
+        if (result.minTemp > 9 && result.maxPro > 17) result.maxPro = 17;
+    }
+    if (e === 2) {
+        if (result.minAmb > 15 && result.minFid < 10) result.minFid = 10;
+        if (result.maxFid < 10 && result.maxAmb > 15) result.maxAmb = 15;
+    }
+    if (e === 3) {
+        if (result.maxAmb < 6 && result.maxFid > 10) result.maxFid = 10;
+        if (result.minFid > 10 && result.minAmb < 6) result.minAmb = 6;
+    }
+    if (e === 4) {
+        if (result.maxAmb < 8 && result.maxFid > 17) result.maxFid = 17;
+        if (result.minFid > 17 && result.minAmb < 8) result.minAmb = 8;
+    }
+    if (e === 5) {
+        if (result.minTemp > 9 && result.maxPre > 14) result.maxPre = 14;
+        if (result.minPre > 14 && result.maxTemp > 9) result.maxTemp = 9;
+    }
+}
+
+function applyMed(result: CalculationResult, e: number): void {
+    if (e === 1) {
+        if (result.minPre > 14 && result.maxPro > 14) result.maxPro = 14;
+        if (result.minPro > 14 && result.maxPre > 14) result.maxPre = 14;
+    }
+    if (e === 2) {
+        if (result.maxTemp < 8 && result.minFp < 8) result.minFp = 8;
+        if (result.maxFp < 8 && result.minTemp < 8) result.minTemp = 8;
+    }
+    if (e === 3) {
+        if (result.minTemp > 14 && result.maxPre > 14) result.maxPre = 14;
+        if (result.minPre > 14 && result.maxTemp > 14) result.maxTemp = 14;
+    }
+    if (e === 4) {
+        if (result.minPol > 14 && result.maxPro > 14) result.maxPro = 14;
+        if (result.maxPol < 6 && result.maxPro > 14) result.maxPro = 14;
+        if (result.minPro > 14 && result.minPol < 6) { result.minPol = 6; if (result.maxPol > 14) result.maxPol = 14; }
+    }
+    if (e === 5) {
+        if (result.minFid > 10) {
+            if (result.maxFp > 11) result.maxFp = 11;
+            if (result.maxPro > 12) result.maxPro = 12;
+        } else if (result.minFp > 11 && result.minPro > 12 && result.maxFid > 10) {
+            result.maxFid = 10;
+        }
+    }
+}
+
+function applyAdjustments(result: CalculationResult, pKey: string | null, mKey: string | null, det: number): void {
+    // Ajustements spécifiques par personnalité/média (simplifiés pour les cas les plus importants)
+    // Note: La version complète inclut toutes les fonctions comme ambition(), mercenaire(), etc.
+
+    if (!pKey || !mKey) return;
+
+    // Exemple d'ajustements courants
+    if (['Amb', 'Me', 'TreAmb', 'Vers'].includes(pKey)) {
+        if (['EvaIr', 'EvaIrCon', 'EvaVer', 'EvaVerCon', 'EvaCon'].includes(mKey)) {
+            result.detMax = Math.min(result.detMax, 13);
+        }
+    }
+}
+
+function unifyValues(result: CalculationResult): void {
+    if (result.minPro === result.maxPro) { result.midPro = result.minPro; }
+    if (result.minPre === result.maxPre) { result.midPre = result.minPre; }
+    if (result.minTemp === result.maxTemp) { result.midTemp = result.minTemp; }
+    if (result.minAmb === result.maxAmb) { result.midAmb = result.minAmb; }
+    if (result.minFid === result.maxFid) { result.midFid = result.minFid; }
+    if (result.minFp === result.maxFp) { result.midFp = result.minFp; }
+    if (result.minPol === result.maxPol) { result.midPol = result.minPol; }
+}
+
+// Visibilité des projets
+export function getVisibleProjects(result: CalculationResult, det: number): VisibleProjects {
+    const shortTermPlaytime = result.maxAmb >= 14 && result.maxPre >= 14 && result.minAmb < 14;
+    const longTermPlaytime = result.maxAmb >= 14 && result.minAmb < 14 && result.minPre < 14;
+    const trophy = result.maxAmb >= 14 && det >= 14 && result.minAmb < 14;
+    const captain = result.maxAmb >= 14 && result.maxFid >= 14 && result.minAmb < 14 && result.minFid < 14;
 
     return {
         shortTermPlaytime,
@@ -218,51 +427,46 @@ export function getVisibleProjects(
     };
 }
 
-/**
- * Applique les modifications des projets aux attributs
- * Basé sur la fonction proj() de l'outil original
- */
+// Appliquer les projets
 export function applyProjects(
-    attributes: HiddenAttributes,
-    projects: PlayerProjects,
-    determination: number
-): { attributes: HiddenAttributes; minDetermination: number } {
-    // Copier les attributs pour ne pas muter l'original
-    const result: HiddenAttributes = {
-        professionalism: [...attributes.professionalism],
-        ambition: [...attributes.ambition],
-        loyalty: [...attributes.loyalty],
-        pressure: [...attributes.pressure],
-        sportsmanship: [...attributes.sportsmanship],
-        temperament: [...attributes.temperament],
-        controversy: [...attributes.controversy]
-    };
+    result: CalculationResult,
+    projects: PlayerProjects
+): { result: CalculationResult; minDetermination: number } {
+    const newResult = { ...result };
+    let minDetermination = result.detMin;
 
-    let minDetermination = 1;
-
-    // Projet à court terme temps de jeu: Ambition >= 14, Pression >= 14
     if (projects.shortTermPlaytime) {
-        result.ambition[0] = Math.max(result.ambition[0], 14);
-        result.pressure[0] = Math.max(result.pressure[0], 14);
+        newResult.minAmb = Math.max(newResult.minAmb, 14);
+        newResult.minPre = Math.max(newResult.minPre, 14);
     }
-
-    // Projet à long terme temps de jeu: Ambition >= 14, Pression <= 13
     if (projects.longTermPlaytime) {
-        result.ambition[0] = Math.max(result.ambition[0], 14);
-        result.pressure[1] = Math.min(result.pressure[1], 13);
+        newResult.minAmb = Math.max(newResult.minAmb, 14);
+        newResult.maxPre = Math.min(newResult.maxPre, 13);
     }
-
-    // Projet de remporter un trophée: Ambition >= 14, Détermination >= 14
     if (projects.trophy) {
-        result.ambition[0] = Math.max(result.ambition[0], 14);
+        newResult.minAmb = Math.max(newResult.minAmb, 14);
         minDetermination = Math.max(minDetermination, 14);
     }
-
-    // Projet de devenir capitaine: Ambition >= 14, Fidélité >= 14
     if (projects.captain) {
-        result.ambition[0] = Math.max(result.ambition[0], 14);
-        result.loyalty[0] = Math.max(result.loyalty[0], 14);
+        newResult.minAmb = Math.max(newResult.minAmb, 14);
+        newResult.minFid = Math.max(newResult.minFid, 14);
     }
 
-    return { attributes: result, minDetermination };
+    unifyValues(newResult);
+    return { result: newResult, minDetermination };
+}
+
+// Fonction utilitaire pour obtenir la couleur
+export function getRangeColor(min: number, max: number, isControversy: boolean = false): 'success' | 'warning' | 'error' | 'neutral' {
+    const avg = (min + max) / 2;
+    if (isControversy) {
+        if (avg <= 5) return 'success';
+        if (avg <= 10) return 'neutral';
+        if (avg <= 15) return 'warning';
+        return 'error';
+    }
+    if (avg >= 15) return 'success';
+    if (avg >= 10) return 'neutral';
+    if (avg >= 5) return 'warning';
+    return 'error';
 }
