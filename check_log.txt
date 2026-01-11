@@ -1,0 +1,152 @@
+
+> fmtools@1.1.2 check
+> svelte-check --tsconfig ./tsconfig.json
+
+
+====================================
+Loading svelte-check in workspace: c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier
+Getting Svelte diagnostics...
+
+18:13:57 [vite-plugin-svelte] You are using Svelte 5.46.0 with vite-plugin-svelte@3. Active Svelte 5 support has moved to vite-plugin-svelte@4.
+	To receive bug fixes and new features update your devDependencies to "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6" and install.
+	For framework integrations that depend on it, you might have to add an override:
+	"overrides": {"@sveltejs/vite-plugin-svelte": "^4.0.0-next.6"}
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\lib\components\Navbar.svelte[39m:95:13
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m        <svelte:fragment slot="trail">
+            [35m<div class="relative" onclick={(e) => e.stopPropagation()}>
+                <button
+                    class="btn btn-sm bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                    onclick={() => (showLangDropdown = !showLangDropdown)}
+                >
+                    <span
+                        class="fi fi-{getCurrentFlagCode()} rounded-sm shadow-sm opacity-90"
+                    ></span>
+                    <span class="font-bold text-xs tracking-wider"
+                        >{currentLang.toUpperCase()}</span
+                    >
+                    <span class="text-[0.6rem] opacity-50">Ôû╝</span>
+                </button>
+
+                {#if showLangDropdown}
+                    <div
+                        class="absolute right-0 top-full mt-2 w-48 max-h-80 overflow-y-auto card-glass p-1 z-[1000] border-t border-white/20"
+                    >
+                        {#each EU_LANGUAGES as lang}
+                            <button
+                                class="w-full flex items-center gap-3 p-2 rounded hover:bg-white/10 text-left transition-colors
+                                       {currentLang === lang.code
+                                    ? 'bg-orange-500/20 text-orange-200'
+                                    : 'text-white/80'}"
+                                onclick={() => handleLangChange(lang.code)}
+                            >
+                                <span
+                                    class="fi fi-{lang.flagCode} text-lg rounded-sm shadow-sm"
+                                ></span>
+                                <span class="text-sm font-medium"
+                                    >{lang.name}</span
+                                >
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
+            </div>[36m
+        </svelte:fragment>
+[39m
+
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\lib\components\Navbar.svelte[39m:95:13
+[33mWarn[39m: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+[36m        <svelte:fragment slot="trail">
+            [35m<div class="relative" onclick={(e) => e.stopPropagation()}>
+                <button
+                    class="btn btn-sm bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 transition-all hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                    onclick={() => (showLangDropdown = !showLangDropdown)}
+                >
+                    <span
+                        class="fi fi-{getCurrentFlagCode()} rounded-sm shadow-sm opacity-90"
+                    ></span>
+                    <span class="font-bold text-xs tracking-wider"
+                        >{currentLang.toUpperCase()}</span
+                    >
+                    <span class="text-[0.6rem] opacity-50">Ôû╝</span>
+                </button>
+
+                {#if showLangDropdown}
+                    <div
+                        class="absolute right-0 top-full mt-2 w-48 max-h-80 overflow-y-auto card-glass p-1 z-[1000] border-t border-white/20"
+                    >
+                        {#each EU_LANGUAGES as lang}
+                            <button
+                                class="w-full flex items-center gap-3 p-2 rounded hover:bg-white/10 text-left transition-colors
+                                       {currentLang === lang.code
+                                    ? 'bg-orange-500/20 text-orange-200'
+                                    : 'text-white/80'}"
+                                onclick={() => handleLangChange(lang.code)}
+                            >
+                                <span
+                                    class="fi fi-{lang.flagCode} text-lg rounded-sm shadow-sm"
+                                ></span>
+                                <span class="text-sm font-medium"
+                                    >{lang.name}</span
+                                >
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
+            </div>[36m
+        </svelte:fragment>
+[39m
+
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\routes\+layout.svelte[39m:29:13
+[33mWarn[39m: Using `<slot>` to render parent content is deprecated. Use `{@render ...}` tags instead
+https://svelte.dev/e/slot_element_deprecated (svelte)
+[36m        <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+            [35m<slot />[36m
+        </div>
+[39m
+
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\routes\staff-evaluation\+page.svelte[39m:92:29
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                        <div class="input-row">
+                            [35m<label
+                                >{$_(
+                                    `staff.${attr === "setPieces" ? "set_pieces" : attr === "mental" ? "mental_attr" : attr}`,
+                                )}</label
+                            >[36m
+                            <select
+[39m
+
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\routes\staff-evaluation\+page.svelte[39m:121:29
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                        <div class="input-row">
+                            [35m<label>{$_(`staff.${attr}`)}</label>[36m
+                            <select
+[39m
+
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\routes\staff-evaluation\+page.svelte[39m:146:29
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                        <div class="input-row">
+                            [35m<label
+                                >{$_(
+                                    `staff.${attr === "gkShotStopping" ? "gk_shot_stopping" : attr === "gkHandling" ? "gk_handling" : "gk_distribution"}`,
+                                )}</label
+                            >[36m
+                            <select
+[39m
+
+c:\Users\TonyBoySUPER\Documents\Projets\Nouveau dossier\[32msrc\routes\staff-evaluation\+page.svelte[39m:175:29
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m                        <div class="input-row">
+                            [35m<label>{$_("staff.tactical_knowledge")}</label>[36m
+                            <select
+[39m
+
+====================================
+[33msvelte-check found 0 errors and 7 warnings in 3 files
+[39m

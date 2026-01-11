@@ -31,31 +31,37 @@
 
         <svelte:fragment slot="pageFooter">
             <div
-                class="bg-slate-900/50 backdrop-blur-sm border-t border-surface-500/30 p-4 text-center text-sm text-surface-400"
+                class="bg-violet-900/40 backdrop-blur-md border-t border-white/5 p-6 text-center text-sm text-white/50"
             >
                 <p>
                     {$_("footer.copyright")}
+                    <span class="mx-2">•</span>
                     <a
                         href="https://github.com/Gilgiltsu/FMTools"
                         target="_blank"
                         rel="noopener"
-                        class="text-primary-500 hover:text-primary-400 hover:underline"
+                        class="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
                     >
                         {$_("footer.based_on")}
                     </a>
                 </p>
-                <a
-                    href="https://liberapay.com/TonyBoySUPER/donate"
-                    target="_blank"
-                    rel="noopener"
-                    class="inline-block mt-2 hover:scale-105 transition-transform"
-                >
-                    <img
-                        alt="Donate using Liberapay"
-                        src="https://liberapay.com/assets/widgets/donate.svg"
-                        class="h-6"
-                    />
-                </a>
+                <div class="mt-4">
+                    <a
+                        href="https://liberapay.com/TonyBoySUPER/donate"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:scale-105"
+                    >
+                        <img
+                            alt="Donate using Liberapay"
+                            src="https://liberapay.com/assets/widgets/donate.svg"
+                            class="h-5"
+                        />
+                        <span class="font-medium text-white/80"
+                            >Soutenir le projet</span
+                        >
+                    </a>
+                </div>
             </div>
         </svelte:fragment>
     </AppShell>

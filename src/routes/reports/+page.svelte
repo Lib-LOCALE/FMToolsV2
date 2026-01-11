@@ -4,6 +4,7 @@
         REPORT_CATEGORIES,
         TRAINING_EFFECTS,
     } from "$lib/logic/reports-data";
+    import { fade, fly } from "svelte/transition";
 
     let activeTab = $state("adaptability");
 
@@ -11,7 +12,6 @@
     const tabKeys = [...REPORT_CATEGORIES.map((c) => c.key), "hidden_effects"];
 
     $effect(() => {
-        // Ensure activeTab is valid
         if (!tabKeys.includes(activeTab)) {
             activeTab = "adaptability";
         }
@@ -21,14 +21,14 @@
         return REPORT_CATEGORIES.find((c) => c.key === activeTab);
     }
 
-    function getIndicatorClass(indicator: string): string {
+    function getIndicatorColor(indicator: string): string {
         switch (indicator) {
             case "positive":
-                return "badge-success";
+                return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
             case "negative":
-                return "badge-error";
+                return "text-red-400 bg-red-400/10 border-red-400/20";
             default:
-                return "badge-neutral";
+                return "text-slate-400 bg-slate-400/10 border-slate-400/20";
         }
     }
 
@@ -48,382 +48,251 @@
     <title>{$_("reports.title")} - FMTools</title>
 </svelte:head>
 
-<div class="page-container">
-    <header class="page-header">
-        <h1 class="page-title">{$_("reports.title")}</h1>
-        <p class="page-description">{$_("reports.description")}</p>
+<div class="space-y-8 pb-12" in:fade={{ duration: 300 }}>
+    <!-- Header -->
+    <header class="text-center md:text-left space-y-2">
+        <h1
+            class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent"
+        >
+            {$_("reports.title")}
+        </h1>
+        <p class="text-lg text-white/50 max-w-2xl">
+            {$_("reports.description")}
+        </p>
     </header>
 
-    <!-- Onglets -->
-    <div class="tabs">
+    <!-- Navigation Tabs (Glass Pills) -->
+    <div class="flex flex-wrap gap-2 md:gap-3 justify-center md:justify-start">
         {#each REPORT_CATEGORIES as category}
             <button
-                class="tab"
-                class:active={activeTab === category.key}
+                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-transparent
+                       {activeTab === category.key
+                    ? 'bg-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)] border-orange-400 scale-105'
+                    : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white hover:border-white/10'}"
                 onclick={() => (activeTab = category.key)}
             >
                 {$_(`reports.${category.key}`)}
             </button>
         {/each}
         <button
-            class="tab tab-special"
-            class:active={activeTab === "hidden_effects"}
+            class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-transparent
+                   {activeTab === 'hidden_effects'
+                ? 'bg-violet-600 text-white shadow-[0_0_15px_rgba(124,58,237,0.4)] border-violet-500 scale-105'
+                : 'bg-white/5 text-white/60 hover:bg-violet-500/20 hover:text-violet-200 hover:border-violet-500/30'}"
             onclick={() => (activeTab = "hidden_effects")}
         >
             {$_("reports.hidden_effects")}
         </button>
     </div>
 
-    <!-- Contenu standard des rapports -->
-    {#if activeTab !== "hidden_effects"}
-        <div class="card">
-            {#if getActiveCategory()}
-                <table class="table reports-table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>{$_("reports.report_text")}</th>
-                            <th class="text-center">{$_("reports.note")}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#each getActiveCategory()?.entries || [] as entry}
-                            <tr>
-                                <td class="indicator-cell">
-                                    <span
-                                        class="indicator {getIndicatorClass(
-                                            entry.indicator,
-                                        )}"
+    <!-- Main Content Area -->
+    <div class="min-h-[400px]">
+        {#if activeTab !== "hidden_effects"}
+            <div
+                class="card-glass overflow-hidden"
+                in:fly={{ y: 20, duration: 400 }}
+            >
+                <!-- Desktop Header -->
+                <div
+                    class="hidden md:grid grid-cols-[80px_1fr_150px] gap-4 p-4 border-b border-white/10 bg-black/20 text-xs font-bold uppercase tracking-wider text-white/40"
+                >
+                    <div class="text-center">Statut</div>
+                    <div>{$_("reports.report_text")}</div>
+                    <div class="text-center">{$_("reports.note")}</div>
+                </div>
+
+                <!-- List Content -->
+                <div class="divide-y divide-white/5">
+                    {#each getActiveCategory()?.entries || [] as entry}
+                        <div
+                            class="group grid md:grid-cols-[80px_1fr_150px] gap-4 p-4 items-center hover:bg-white/5 transition-colors"
+                        >
+                            <!-- Mobile Label & Indicator -->
+                            <div
+                                class="flex md:block items-center justify-between md:justify-center"
+                            >
+                                <span
+                                    class="md:hidden text-xs font-bold uppercase text-white/40"
+                                    >Statut</span
+                                >
+                                <div
+                                    class="w-8 h-8 rounded-full flex items-center justify-center border font-bold text-sm shadow-sm {getIndicatorColor(
+                                        entry.indicator,
+                                    )}"
+                                >
+                                    {getIndicatorIcon(entry.indicator)}
+                                </div>
+                            </div>
+
+                            <!-- Report Text -->
+                            <div
+                                class="text-white/80 leading-relaxed py-2 md:py-0"
+                            >
+                                {$_(`reports.${activeTab}_${entry.textKey}`, {
+                                    default: entry.textKey,
+                                })}
+                            </div>
+
+                            <!-- Range Badge -->
+                            <div
+                                class="flex md:block items-center justify-between md:justify-center"
+                            >
+                                <span
+                                    class="md:hidden text-xs font-bold uppercase text-white/40"
+                                    >Estimation</span
+                                >
+                                <div
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-sm font-bold bg-black/30 border border-white/10 text-white shadow-inner"
+                                >
+                                    <span>{entry.range[0]}</span>
+                                    <span class="text-white/20">-</span>
+                                    <span>{entry.range[1]}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {:else}
+            <!-- Hidden Effects Section -->
+            <div class="space-y-6" in:fly={{ y: 20, duration: 400 }}>
+                <div
+                    class="card-glass p-6 border-l-4 border-violet-500 bg-gradient-to-r from-violet-500/10 to-transparent"
+                >
+                    <p class="text-violet-100 font-light leading-relaxed">
+                        {$_("reports.hidden_effects_intro")}
+                    </p>
+                </div>
+
+                <div class="grid gap-6">
+                    <!-- Positive Effects -->
+                    <div class="card-glass overflow-hidden">
+                        <div
+                            class="p-4 bg-emerald-500/10 border-b border-white/5 flex items-center gap-2"
+                        >
+                            <span class="text-emerald-400">✅</span>
+                            <h3
+                                class="font-bold text-emerald-100 uppercase tracking-wider text-sm"
+                            >
+                                {$_("reports.positive_effects")}
+                            </h3>
+                        </div>
+                        <div class="divide-y divide-white/5">
+                            {#each TRAINING_EFFECTS.positive as effect}
+                                <div
+                                    class="p-4 grid md:grid-cols-[1fr_auto_auto] gap-4 items-center"
+                                >
+                                    <div class="text-white/90">
+                                        {$_(`reports.${effect.messageKey}`)}
+                                    </div>
+                                    <div
+                                        class="flex flex-wrap gap-2 justify-end"
                                     >
-                                        {getIndicatorIcon(entry.indicator)}
-                                    </span>
-                                </td>
-                                <td class="report-text">
-                                    {$_(
-                                        `reports.${activeTab}_${entry.textKey}`,
-                                        {
-                                            default: entry.textKey,
-                                        },
-                                    )}
-                                </td>
-                                <td class="text-center">
-                                    <span
-                                        class="badge {getIndicatorClass(
-                                            entry.indicator,
-                                        )}"
+                                        <span
+                                            class="px-2 py-1 rounded text-xs border border-white/10 bg-white/5 text-white/60"
+                                        >
+                                            {$_(`reports.${effect.causeKey}`)}
+                                        </span>
+                                        <span
+                                            class="px-2 py-1 rounded text-xs border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-bold"
+                                        >
+                                            {$_(
+                                                `reports.${effect.consequenceKey}`,
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+
+                    <!-- Negative Effects -->
+                    <div class="card-glass overflow-hidden">
+                        <div
+                            class="p-4 bg-red-500/10 border-b border-white/5 flex items-center gap-2"
+                        >
+                            <span class="text-red-400">⚠️</span>
+                            <h3
+                                class="font-bold text-red-100 uppercase tracking-wider text-sm"
+                            >
+                                {$_("reports.negative_effects")}
+                            </h3>
+                        </div>
+                        <div class="divide-y divide-white/5">
+                            {#each TRAINING_EFFECTS.negative as effect}
+                                <div
+                                    class="p-4 grid md:grid-cols-[1fr_auto_auto] gap-4 items-center"
+                                >
+                                    <div class="text-white/90">
+                                        {$_(`reports.${effect.messageKey}`)}
+                                    </div>
+                                    <div
+                                        class="flex flex-wrap gap-2 justify-end"
                                     >
-                                        {entry.range[0]} - {entry.range[1]}
-                                    </span>
-                                </td>
-                            </tr>
-                        {/each}
-                    </tbody>
-                </table>
-            {/if}
-        </div>
-    {:else}
-        <!-- Section Effets sur les notes cachées -->
-        <div class="card hidden-effects-card">
-            <p class="effects-intro">
-                {$_("reports.hidden_effects_intro")}
-            </p>
+                                        <span
+                                            class="px-2 py-1 rounded text-xs border border-white/10 bg-white/5 text-white/60"
+                                        >
+                                            {$_(`reports.${effect.causeKey}`)}
+                                        </span>
+                                        <span
+                                            class="px-2 py-1 rounded text-xs border border-red-500/30 bg-red-500/10 text-red-300 font-bold"
+                                        >
+                                            {$_(
+                                                `reports.${effect.consequenceKey}`,
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
 
-            <!-- Tableau des effets -->
-            <table class="table effects-table">
-                <thead>
-                    <tr>
-                        <th>{$_("reports.message_adjoint")}</th>
-                        <th class="text-center">{$_("reports.cause")}</th>
-                        <th class="text-center">{$_("reports.consequence")}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Effets positifs -->
-                    <tr class="section-header positive">
-                        <td colspan="3">{$_("reports.positive_effects")}</td>
-                    </tr>
-                    {#each TRAINING_EFFECTS.positive as effect}
-                        <tr>
-                            <td class="message-text">
-                                {$_(`reports.${effect.messageKey}`)}
-                            </td>
-                            <td class="text-center">
-                                <span class="cause-badge">
-                                    {$_(`reports.${effect.causeKey}`)}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span class="consequence-badge positive">
-                                    {$_(`reports.${effect.consequenceKey}`)}
-                                </span>
-                            </td>
-                        </tr>
-                    {/each}
-
-                    <!-- Effets négatifs -->
-                    <tr class="section-header negative">
-                        <td colspan="3">{$_("reports.negative_effects")}</td>
-                    </tr>
-                    {#each TRAINING_EFFECTS.negative as effect}
-                        <tr>
-                            <td class="message-text">
-                                {$_(`reports.${effect.messageKey}`)}
-                            </td>
-                            <td class="text-center">
-                                <span class="cause-badge">
-                                    {$_(`reports.${effect.causeKey}`)}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span class="consequence-badge negative">
-                                    {$_(`reports.${effect.consequenceKey}`)}
-                                </span>
-                            </td>
-                        </tr>
-                    {/each}
-
-                    <!-- Aucun effet -->
-                    <tr class="section-header neutral">
-                        <td colspan="3">{$_("reports.neutral_effects")}</td>
-                    </tr>
-                    {#each TRAINING_EFFECTS.neutral as effect}
-                        <tr>
-                            <td class="message-text">
-                                {$_(`reports.${effect.messageKey}`)}
-                            </td>
-                            <td class="text-center">
-                                <span class="cause-badge">
-                                    {$_(`reports.${effect.causeKey}`)}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span class="consequence-badge neutral">
-                                    {$_(`reports.${effect.consequenceKey}`)}
-                                </span>
-                            </td>
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        </div>
-    {/if}
+                    <!-- Neutral Effects -->
+                    <div class="card-glass overflow-hidden">
+                        <div
+                            class="p-4 bg-slate-500/10 border-b border-white/5 flex items-center gap-2"
+                        >
+                            <span class="text-slate-400">ℹ️</span>
+                            <h3
+                                class="font-bold text-slate-100 uppercase tracking-wider text-sm"
+                            >
+                                {$_("reports.neutral_effects")}
+                            </h3>
+                        </div>
+                        <div class="divide-y divide-white/5">
+                            {#each TRAINING_EFFECTS.neutral as effect}
+                                <div
+                                    class="p-4 grid md:grid-cols-[1fr_auto_auto] gap-4 items-center"
+                                >
+                                    <div class="text-white/90">
+                                        {$_(`reports.${effect.messageKey}`)}
+                                    </div>
+                                    <div
+                                        class="flex flex-wrap gap-2 justify-end"
+                                    >
+                                        <span
+                                            class="px-2 py-1 rounded text-xs border border-white/10 bg-white/5 text-white/60"
+                                        >
+                                            {$_(`reports.${effect.causeKey}`)}
+                                        </span>
+                                        <span
+                                            class="px-2 py-1 rounded text-xs border border-slate-500/30 bg-slate-500/10 text-slate-300 font-bold"
+                                        >
+                                            {$_(
+                                                `reports.${effect.consequenceKey}`,
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {/if}
+    </div>
 </div>
 
 <style>
-    .page-container {
-        animation: fadeIn 0.4s ease;
-    }
-
-    .page-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .page-description {
-        color: var(--color-text-secondary);
-    }
-
-    .tabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .tab {
-        padding: 0.6rem 1.2rem;
-        background: var(--color-bg-card);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        color: var(--color-text-secondary);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.9rem;
-    }
-
-    .tab:hover {
-        color: var(--color-text-primary);
-        border-color: var(--color-accent-primary);
-    }
-
-    .tab.active {
-        background: rgba(0, 212, 170, 0.15);
-        border-color: var(--color-accent-primary);
-        color: var(--color-accent-primary);
-    }
-
-    .tab-special {
-        background: rgba(107, 74, 158, 0.2);
-        border-color: var(--color-violet-primary);
-    }
-
-    .tab-special:hover,
-    .tab-special.active {
-        background: rgba(107, 74, 158, 0.3);
-        border-color: var(--color-violet-primary);
-        color: var(--color-violet-secondary);
-    }
-
-    .reports-table {
-        width: 100%;
-    }
-
-    .indicator-cell {
-        width: 50px;
-        text-align: center;
-    }
-
-    .indicator {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        font-size: 0.9rem;
-    }
-
-    .report-text {
-        color: var(--color-text-secondary);
-        line-height: 1.5;
-    }
-
-    .badge {
-        padding: 0.3rem 0.75rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    /* Styles pour les effets sur notes cachées */
-    .hidden-effects-card {
-        padding: 1.5rem;
-    }
-
-    .effects-intro {
-        color: var(--color-text-secondary);
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-        font-size: 0.95rem;
-        padding: 1rem;
-        background: rgba(107, 74, 158, 0.1);
-        border-left: 3px solid var(--color-violet-primary);
-        border-radius: 0 8px 8px 0;
-    }
-
-    .effects-table {
-        width: 100%;
-    }
-
-    .effects-table th {
-        background: var(--color-bg-secondary);
-        padding: 0.85rem 1rem;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .effects-table td {
-        padding: 0.75rem 1rem;
-        vertical-align: middle;
-    }
-
-    .section-header {
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.05em;
-    }
-
-    .section-header.positive td {
-        background: rgba(0, 212, 170, 0.2);
-        color: var(--color-success);
-        border-left: 3px solid var(--color-success);
-    }
-
-    .section-header.negative td {
-        background: rgba(239, 68, 68, 0.2);
-        color: var(--color-error);
-        border-left: 3px solid var(--color-error);
-    }
-
-    .section-header.neutral td {
-        background: rgba(148, 163, 184, 0.2);
-        color: var(--color-text-secondary);
-        border-left: 3px solid var(--color-text-muted);
-    }
-
-    .message-text {
-        color: var(--color-text-secondary);
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-
-    .cause-badge {
-        display: inline-block;
-        padding: 0.35rem 0.75rem;
-        background: var(--color-bg-secondary);
-        border: 1px solid var(--color-border);
-        border-radius: 6px;
-        font-size: 0.8rem;
-        color: var(--color-text-primary);
-    }
-
-    .consequence-badge {
-        display: inline-block;
-        padding: 0.35rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    .consequence-badge.positive {
-        background: rgba(0, 212, 170, 0.2);
-        color: var(--color-success);
-        border: 1px solid var(--color-success);
-    }
-
-    .consequence-badge.negative {
-        background: rgba(239, 68, 68, 0.2);
-        color: var(--color-error);
-        border: 1px solid var(--color-error);
-    }
-
-    .consequence-badge.neutral {
-        background: rgba(148, 163, 184, 0.2);
-        color: var(--color-text-secondary);
-        border: 1px solid var(--color-text-muted);
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .effects-table {
-            font-size: 0.85rem;
-        }
-
-        .effects-table td,
-        .effects-table th {
-            padding: 0.5rem;
-        }
-
-        .cause-badge,
-        .consequence-badge {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-        }
-    }
+    /* Custom animations if needed, but Tailwind utilities + svelte/transition cover most */
 </style>
