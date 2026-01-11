@@ -686,15 +686,21 @@ export function applyProjects(
 
 // Fonction utilitaire pour obtenir la couleur
 export function getRangeColor(min: number, max: number, isControversy: boolean = false): 'success' | 'warning' | 'error' | 'neutral' {
-    const avg = (min + max) / 2;
+    // Logique basée sur la fonction color() de référence
+    // Si Controversy (Polémique):
+    // min >= 10 -> Rouge (error)
+    // max < 10 -> Vert (success)
+    // Sinon:
+    // min >= 10 -> Vert (success)
+    // max < 10 -> Rouge (error)
+
     if (isControversy) {
-        if (avg <= 5) return 'success';
-        if (avg <= 10) return 'neutral';
-        if (avg <= 15) return 'warning';
-        return 'error';
+        if (min >= 10) return 'error';
+        if (max < 10) return 'success';
+        return 'neutral';
+    } else {
+        if (min >= 10) return 'success';
+        if (max < 10) return 'error';
+        return 'neutral';
     }
-    if (avg >= 15) return 'success';
-    if (avg >= 10) return 'neutral';
-    if (avg >= 5) return 'warning';
-    return 'error';
 }
