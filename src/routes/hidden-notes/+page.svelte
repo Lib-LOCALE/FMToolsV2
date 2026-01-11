@@ -1,6 +1,7 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
     import Tooltip from "$lib/components/Tooltip.svelte";
+    import { RangeSlider } from "@skeletonlabs/skeleton";
     import {
         PERSONALITIES,
         MEDIA_HANDLINGS,
@@ -137,165 +138,296 @@
             captain: false,
         };
     }
+
+    // Helper for color classes
+    function getColorClass(
+        color: "success" | "warning" | "error" | "neutral",
+    ): string {
+        switch (color) {
+            case "success":
+                return "bg-success-500";
+            case "warning":
+                return "bg-warning-500";
+            case "error":
+                return "bg-error-500";
+            case "neutral":
+                return "bg-surface-400";
+            default:
+                return "bg-surface-400";
+        }
+    }
+
+    function getBadgeClass(
+        color: "success" | "warning" | "error" | "neutral",
+    ): string {
+        switch (color) {
+            case "success":
+                return "variant-filled-success";
+            case "warning":
+                return "variant-filled-warning";
+            case "error":
+                return "variant-filled-error";
+            case "neutral":
+                return "variant-filled-surface";
+            default:
+                return "variant-filled-surface";
+        }
+    }
 </script>
 
 <svelte:head>
     <title>{$_("hidden_notes.title")} - FMTools</title>
 </svelte:head>
 
-<div class="page-container">
-    <header class="page-header">
-        <h1 class="page-title">{$_("hidden_notes.title")}</h1>
+<div class="space-y-8 animate-fade-in-down">
+    <header class="text-center md:text-left">
+        <h1
+            class="h1 font-bold bg-gradient-to-br from-primary-400 to-secondary-500 bg-clip-text text-transparent inline-block"
+        >
+            {$_("hidden_notes.title")}
+        </h1>
+        <p class="text-surface-400 mt-2 text-lg">
+            Découvrez les notes cachées de vos joueurs selon leur personnalité.
+        </p>
     </header>
 
-    <div class="content-grid">
-        <!-- Formulaire de saisie -->
-        <div class="card input-card">
-            <div class="form-group">
-                <label class="form-label" for="determination">
-                    {$_("hidden_notes.determination")}
-                </label>
-                <input
-                    type="number"
-                    id="determination"
-                    class="form-input"
-                    min={Math.max(baseResult.detMin, minDetermination)}
-                    max={baseResult.detMax}
-                    bind:value={determination}
-                />
-                {#if minDetermination > 1 || baseResult.detMin > 1 || baseResult.detMax < 20}
-                    <span class="det-hint">
-                        ({Math.max(baseResult.detMin, minDetermination)} - {baseResult.detMax})
-                    </span>
-                {/if}
-            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <!-- Input Card (Sticky on desktop) -->
+        <div class="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
+            <div
+                class="card p-6 shadow-xl border-surface-600 bg-surface-800/80 backdrop-blur"
+            >
+                <h3 class="h3 font-bold mb-4 text-primary-500">
+                    Configuration
+                </h3>
 
-            <div class="form-group">
-                <label class="form-label" for="personality">
-                    {$_("hidden_notes.personality")}
-                </label>
-                <select
-                    id="personality"
-                    class="form-select"
-                    bind:value={selectedPersonality}
-                    onchange={resetProjects}
-                >
-                    <option value={null}>{$_("common.select")}</option>
-                    {#each PERSONALITIES as p}
-                        <option value={p.key}
-                            >{$_(`personalities.${p.key}`)}</option
+                <div class="space-y-6">
+                    <!-- Determination Input -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="label font-bold" for="determination">
+                                {$_("hidden_notes.determination")}
+                            </label>
+                            <span
+                                class="badge variant-soft-primary font-mono text-base"
+                                >{determination}</span
+                            >
+                        </div>
+
+                        <RangeSlider
+                            name="determination"
+                            bind:value={determination}
+                            min={Math.max(baseResult.detMin, minDetermination)}
+                            max={baseResult.detMax}
+                            step={1}
+                            ticked
+                            accent="accent-primary-500"
+                        />
+
+                        {#if minDetermination > 1 || baseResult.detMin > 1 || baseResult.detMax < 20}
+                            <div class="text-xs text-surface-400 text-center">
+                                Plage valide : <span
+                                    class="text-primary-400 font-bold"
+                                    >{Math.max(
+                                        baseResult.detMin,
+                                        minDetermination,
+                                    )} - {baseResult.detMax}</span
+                                >
+                            </div>
+                        {/if}
+                    </div>
+
+                    <hr class="opacity-30" />
+
+                    <!-- Personality Select -->
+                    <label class="label">
+                        <span class="font-bold"
+                            >{$_("hidden_notes.personality")}</span
                         >
-                    {/each}
-                </select>
-            </div>
+                        <select
+                            class="select"
+                            bind:value={selectedPersonality}
+                            onchange={resetProjects}
+                        >
+                            <option value={null}>{$_("common.select")}</option>
+                            {#each PERSONALITIES as p}
+                                <option value={p.key}
+                                    >{$_(`personalities.${p.key}`)}</option
+                                >
+                            {/each}
+                        </select>
+                    </label>
 
-            <div class="form-group">
-                <label class="form-label" for="media">
-                    {$_("hidden_notes.media_handling")}
-                </label>
-                <select
-                    id="media"
-                    class="form-select"
-                    bind:value={selectedMedia}
-                    onchange={resetProjects}
-                >
-                    <option value={null}>{$_("common.select")}</option>
-                    {#each MEDIA_HANDLINGS.filter( (m) => compatibleMedia.includes(m.key), ) as m}
-                        <option value={m.key}>{$_(`media.${m.key}`)}</option>
-                    {/each}
-                </select>
-            </div>
+                    <!-- Media Handling Select -->
+                    <label class="label">
+                        <span class="font-bold"
+                            >{$_("hidden_notes.media_handling")}</span
+                        >
+                        <select
+                            class="select"
+                            bind:value={selectedMedia}
+                            onchange={resetProjects}
+                            disabled={!selectedPersonality}
+                        >
+                            <option value={null}>{$_("common.select")}</option>
+                            {#each MEDIA_HANDLINGS.filter( (m) => compatibleMedia.includes(m.key), ) as m}
+                                <option value={m.key}
+                                    >{$_(`media.${m.key}`)}</option
+                                >
+                            {/each}
+                        </select>
+                    </label>
 
-            <button class="btn btn-secondary" onclick={reset}>
-                {$_("common.reset")}
-            </button>
+                    <button
+                        class="btn variant-ghost-error w-full mt-4"
+                        onclick={reset}
+                    >
+                        <span>↺</span>
+                        <span>{$_("common.reset")}</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Résultats -->
-        <div class="card results-card">
-            <h2 class="card-title">{$_("hidden_notes.attributes")}</h2>
+        <!-- Results Column -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Attributes Card -->
+            <div
+                class="card p-6 shadow-xl border-surface-600 bg-surface-800/80 backdrop-blur"
+            >
+                <h2 class="h2 font-bold mb-6 flex items-center gap-3">
+                    <span class="text-secondary-500">📊</span>
+                    {$_("hidden_notes.attributes")}
+                </h2>
 
-            <table class="table attributes-table">
-                <thead>
-                    <tr>
-                        <th>Attribut</th>
-                        <th class="text-center">Min</th>
-                        <th></th>
-                        <th class="text-center">Max</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each attributeKeys as attr}
-                        {@const values = getAttrValues(attr)}
-                        {@const isControversy = attr === "controversy"}
-                        {@const color =
-                            values.mid !== null
-                                ? getRangeColor(
-                                      values.mid,
-                                      values.mid,
-                                      isControversy,
-                                  )
-                                : getRangeColor(
-                                      values.min,
-                                      values.max,
-                                      isControversy,
-                                  )}
-                        <tr>
-                            <td class="attr-name">
-                                {$_(getTranslationKey(attr))}
-                                <Tooltip text={$_(getDescriptionKey(attr))} />
-                            </td>
-                            {#if values.mid !== null}
-                                <td class="text-center" colspan="3">
-                                    <span class="badge badge-{color}"
-                                        >{values.mid}</span
-                                    >
-                                </td>
-                            {:else}
-                                <td class="text-center">
-                                    <span class="badge badge-{color}"
-                                        >{values.min}</span
-                                    >
-                                </td>
-                                <td class="range-bar-cell">
-                                    <div class="range-bar">
-                                        <div
-                                            class="range-fill range-{color}"
-                                            style="left: {((values.min - 1) /
-                                                19) *
-                                                100}%; width: {((values.max -
-                                                values.min) /
-                                                19) *
-                                                100}%"
-                                        ></div>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge badge-{color}"
-                                        >{values.max}</span
-                                    >
-                                </td>
-                            {/if}
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
+                <div class="overflow-x-auto">
+                    <table class="table table-hover w-full">
+                        <thead>
+                            <tr
+                                class="text-surface-400 uppercase text-xs tracking-wider border-b border-surface-600/50"
+                            >
+                                <th class="pb-3 text-left">Attribut</th>
+                                <th class="pb-3 text-center w-16">Min</th>
+                                <th
+                                    class="pb-3 text-center w-full min-w-[150px]"
+                                    >Plage</th
+                                >
+                                <th class="pb-3 text-center w-16">Max</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-surface-600/30">
+                            {#each attributeKeys as attr}
+                                {@const values = getAttrValues(attr)}
+                                {@const isControversy = attr === "controversy"}
+                                {@const colorState =
+                                    values.mid !== null
+                                        ? getRangeColor(
+                                              values.mid,
+                                              values.mid,
+                                              isControversy,
+                                          )
+                                        : getRangeColor(
+                                              values.min,
+                                              values.max,
+                                              isControversy,
+                                          )}
+                                {@const colorClass = getColorClass(colorState)}
+                                {@const badgeClass = getBadgeClass(colorState)}
 
-            <!-- Section Projets -->
+                                <tr
+                                    class="group hover:bg-surface-700/30 transition-colors"
+                                >
+                                    <td
+                                        class="font-medium flex items-center gap-2 py-4"
+                                    >
+                                        {$_(getTranslationKey(attr))}
+                                        <Tooltip
+                                            text={$_(getDescriptionKey(attr))}
+                                        />
+                                    </td>
+
+                                    {#if values.mid !== null}
+                                        <td
+                                            class="text-center font-mono font-bold"
+                                            colspan="3"
+                                        >
+                                            <span
+                                                class="badge {badgeClass} min-w-[3rem] shadow"
+                                                >{values.mid}</span
+                                            >
+                                        </td>
+                                    {:else}
+                                        <td
+                                            class="text-center font-mono text-surface-300 group-hover:text-white"
+                                            >{values.min}</td
+                                        >
+                                        <td class="px-4 align-middle">
+                                            <!-- Visual Range Bar -->
+                                            <div
+                                                class="h-3 w-full bg-surface-600/50 rounded-full relative overflow-hidden shadow-inner"
+                                            >
+                                                <!-- Background track markers (guidelines) -->
+                                                <div
+                                                    class="absolute inset-0 grid grid-cols-20 opacity-10"
+                                                >
+                                                    {#each Array(20) as _}
+                                                        <div
+                                                            class="border-l border-white h-full"
+                                                        ></div>
+                                                    {/each}
+                                                </div>
+
+                                                <!-- The Fill -->
+                                                <div
+                                                    class="absolute h-full rounded-full {colorClass} shadow-lg transition-all duration-500 ease-out"
+                                                    style="left: {((values.min -
+                                                        1) /
+                                                        19) *
+                                                        100}%; width: {Math.max(
+                                                        5,
+                                                        ((values.max -
+                                                            values.min) /
+                                                            19) *
+                                                            100,
+                                                    )}%"
+                                                ></div>
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="text-center font-mono text-surface-300 group-hover:text-white"
+                                            >{values.max}</td
+                                        >
+                                    {/if}
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
             {#if visibleProjects.anyVisible}
-                <div class="projects-section">
-                    <h3 class="projects-title">
-                        {$_("hidden_notes.projects_title")}
-                        <Tooltip text={$_("hidden_notes.projects_subtitle")} />
-                    </h3>
-                    <p class="projects-subtitle">
-                        {$_("hidden_notes.projects_subtitle")}
-                    </p>
+                <div
+                    class="card p-6 variant-soft-surface border border-surface-600/30 animate-fade-in"
+                >
+                    <header class="mb-4">
+                        <h3
+                            class="h3 font-bold text-tertiary-500 flex items-center gap-2"
+                        >
+                            🚀 {$_("hidden_notes.projects_title")}
+                        </h3>
+                        <p class="text-sm opacity-80">
+                            {$_("hidden_notes.projects_subtitle")}
+                        </p>
+                    </header>
 
-                    <div class="projects-list">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {#if visibleProjects.shortTermPlaytime}
-                            <label class="project-item">
+                            <label
+                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
+                            >
                                 <input
+                                    class="checkbox"
                                     type="checkbox"
                                     bind:checked={projects.shortTermPlaytime}
                                 />
@@ -308,8 +440,11 @@
                         {/if}
 
                         {#if visibleProjects.longTermPlaytime}
-                            <label class="project-item">
+                            <label
+                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
+                            >
                                 <input
+                                    class="checkbox"
                                     type="checkbox"
                                     bind:checked={projects.longTermPlaytime}
                                 />
@@ -322,8 +457,11 @@
                         {/if}
 
                         {#if visibleProjects.trophy}
-                            <label class="project-item">
+                            <label
+                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
+                            >
                                 <input
+                                    class="checkbox"
                                     type="checkbox"
                                     bind:checked={projects.trophy}
                                 />
@@ -332,8 +470,11 @@
                         {/if}
 
                         {#if visibleProjects.captain}
-                            <label class="project-item">
+                            <label
+                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
+                            >
                                 <input
+                                    class="checkbox"
                                     type="checkbox"
                                     bind:checked={projects.captain}
                                 />
@@ -344,230 +485,43 @@
                     </div>
                 </div>
             {:else if selectedPersonality}
-                <p class="no-projects-info">
-                    <i>{$_("hidden_notes.projects_subtitle")}</i>
-                </p>
+                <div
+                    class="card p-4 variant-ghost-surface text-center italic text-surface-400"
+                >
+                    {$_("hidden_notes.projects_subtitle")} (Aucun projet disponible
+                    pour cette configuration)
+                </div>
             {/if}
-        </div>
-    </div>
 
-    <!-- Liens utiles -->
-    <div class="links-section">
-        <h3>{$_("hidden_notes.learn_more")}</h3>
-        <div class="links-grid">
-            <a
-                href="https://youtu.be/9bWkYexbNII"
-                target="_blank"
-                rel="noopener"
-                class="link-card"
-            >
-                🎥 {$_("hidden_notes.video_guide")}
-            </a>
+            <!-- Links -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <a
+                    href="https://youtu.be/9bWkYexbNII"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn variant-filled-secondary"
+                >
+                    🎥 {$_("hidden_notes.video_guide")}
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .page-container {
-        animation: fadeIn 0.4s ease;
-    }
-
-    .page-header {
-        margin-bottom: 2rem;
-    }
-
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--color-text-primary);
-    }
-
-    .content-grid {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
-
-    .input-card {
-        position: sticky;
-        top: 100px;
-    }
-
-    .det-hint {
-        font-size: 0.75rem;
-        color: var(--color-accent-primary);
-        margin-left: 0.5rem;
-    }
-
-    .results-card .card-title {
-        margin-bottom: 1.5rem;
-        font-size: 1.1rem;
-    }
-
-    .attributes-table {
-        width: 100%;
-    }
-
-    .attr-name {
-        font-weight: 500;
-        color: var(--color-text-secondary);
-        display: flex;
-        align-items: center;
-    }
-
-    .range-bar-cell {
-        width: 200px;
-        padding: 0.5rem 1rem;
-    }
-
-    .range-bar {
-        height: 8px;
-        background: var(--color-bg-secondary);
-        border-radius: 4px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .range-fill {
-        position: absolute;
-        top: 0;
-        height: 100%;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-
-    .range-success {
-        background: var(--color-success);
-    }
-    .range-warning {
-        background: var(--color-warning);
-    }
-    .range-error {
-        background: var(--color-error);
-    }
-    .range-neutral {
-        background: var(--color-accent-secondary);
-    }
-
-    /* Projects Section */
-    .projects-section {
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--color-border);
-    }
-
-    .projects-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--color-accent-primary);
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .projects-subtitle {
-        font-size: 0.85rem;
-        color: var(--color-text-muted);
-        font-style: italic;
-        margin-bottom: 1rem;
-    }
-
-    .projects-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .project-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        background: var(--color-bg-secondary);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .project-item:hover {
-        border-color: var(--color-accent-primary);
-        background: rgba(20, 184, 166, 0.05);
-    }
-
-    .project-item input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: var(--color-accent-primary);
-        cursor: pointer;
-    }
-
-    .project-item span {
-        color: var(--color-text-secondary);
-        font-size: 0.95rem;
-    }
-
-    .no-projects-info {
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--color-border);
-        text-align: center;
-        color: var(--color-text-muted);
-        font-size: 0.9rem;
-    }
-
-    .links-section {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--color-border);
-    }
-
-    .links-section h3 {
-        font-size: 1rem;
-        color: var(--color-text-secondary);
-        margin-bottom: 1rem;
-    }
-
-    .links-grid {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .link-card {
-        padding: 0.75rem 1.25rem;
-        background: var(--color-bg-card);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        color: var(--color-text-primary);
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-
-    .link-card:hover {
-        border-color: var(--color-accent-primary);
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 900px) {
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .input-card {
-            position: static;
-        }
-    }
-
-    @keyframes fadeIn {
-        from {
+    /* Custom utility if strict strict tailwind isn't enough for the specific animation */
+    /* Usually provided by plugin but adding fallback */
+    @keyframes fade-in-down {
+        0% {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(-10px);
         }
-        to {
+        100% {
             opacity: 1;
             transform: translateY(0);
         }
+    }
+    .animate-fade-in-down {
+        animation: fade-in-down 0.5s ease-out;
     }
 </style>
