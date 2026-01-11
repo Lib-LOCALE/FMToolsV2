@@ -252,6 +252,17 @@ export function calculateHiddenAttributes(
         }
     }
 
+    // Ré-appliquer les contraintes CAS après le média
+    // (Nécessaire pour les cas où le média active une condition CAS, ex: Réaliste + Versatile/Conflictuel)
+    if (personalityKey) {
+        const personality = PERSONALITIES.find(p => p.key === personalityKey);
+        if (personality && personality.cas) {
+            for (const c of personality.cas) {
+                applyCas(result, c);
+            }
+        }
+    }
+
     // Appliquer les ajustements
     applyAdjustments(result, personalityKey, mediaKey, determination);
 
