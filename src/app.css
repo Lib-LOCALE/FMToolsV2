@@ -2,33 +2,118 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    /* Premium Palette - Dark Mode Foundation */
+    --color-violet-900: 30 20 50;
+    /* Deepest Violet */
+    --color-violet-800: 45 25 70;
+    --color-violet-500: 107 74 158;
+    /* Primary Violet */
+
+    --color-orange-500: 249 115 22;
+    /* Vibrant Orange */
+    --color-blue-500: 59 130 246;
+    /* Info Blue */
+
+    /* Glass Tokens */
+    --glass-surface: rgba(30, 20, 50, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-highlight: rgba(255, 255, 255, 0.15);
+    --glass-blur: 16px;
+}
+
 html,
 body {
     @apply h-full overflow-hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: white;
+    /* Default text color for dark mode */
 }
 
+/* Background Premium Global */
+/* Use a rich gradient overlay on top of the image or as standalone if image fails */
 body {
-    background-image: url('/background.webp');
+    background-color: rgb(15, 10, 30);
+    /* fallback */
+    background-image:
+        linear-gradient(135deg, rgba(15, 10, 30, 0.92) 0%, rgba(45, 20, 60, 0.85) 100%),
+        url('/background.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
 }
 
-/* Overlay sombre pour la lisibilité */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.85);
-    /* Slate-900 avec opacité */
-    z-index: -1;
+/* 
+   GLASSMORPHISM UTILITIES 
+   Can be used as classes: .card-glass, .btn-glass 
+*/
+@layer components {
+    .card-glass {
+        @apply rounded-xl border border-white/10 backdrop-blur-md shadow-xl;
+        background: linear-gradient(145deg,
+                rgba(255, 255, 255, 0.07) 0%,
+                rgba(255, 255, 255, 0.03) 100%);
+        box-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.3),
+            0 2px 4px -1px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .card-glass-header {
+        @apply px-4 py-3 border-b border-white/5 font-semibold tracking-wide text-white/90;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-glass {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    .btn-action {
+        @apply btn-glass bg-orange-600/80 border-orange-500/50 text-white;
+
+        &:hover {
+            @apply bg-orange-500/90 border-orange-400;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+        }
+    }
+
+    .input-glass {
+        @apply bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all;
+    }
 }
 
-/* Corrections pour les badges FM qui utilisent des gradients spécifiques */
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 
+   LEGACY / SPECIFIC STYLES 
+   Preserved from previous implementation 
+*/
 .level-badge {
     @apply inline-block px-3 py-1 rounded font-bold text-xs text-white shadow-sm;
 }
@@ -63,9 +148,4 @@ body::before {
 
 .level-unsuited {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-}
-
-/* Font */
-body {
-    font-family: 'Inter', sans-serif;
 }

@@ -194,22 +194,24 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <!-- Input Card (Sticky on desktop) -->
         <div class="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
-            <div
-                class="card p-6 shadow-xl border-surface-600 bg-surface-800/80 backdrop-blur"
-            >
-                <h3 class="h3 font-bold mb-4 text-primary-500">
-                    Configuration
+            <div class="card-glass p-6">
+                <h3
+                    class="h3 font-bold mb-4 text-orange-500 flex items-center gap-2"
+                >
+                    <span>⚙️</span> Configuration
                 </h3>
 
                 <div class="space-y-6">
                     <!-- Determination Input -->
                     <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="label font-bold" for="determination">
+                        <div
+                            class="flex justify-between items-center text-white/90"
+                        >
+                            <label class="font-bold" for="determination">
                                 {$_("hidden_notes.determination")}
                             </label>
                             <span
-                                class="badge variant-soft-primary font-mono text-base"
+                                class="px-2 py-1 rounded bg-orange-500/20 text-orange-400 font-mono text-base border border-orange-500/30"
                                 >{determination}</span
                             >
                         </div>
@@ -221,13 +223,13 @@
                             max={baseResult.detMax}
                             step={1}
                             ticked
-                            accent="accent-primary-500"
+                            accent="bg-orange-500"
                         />
 
                         {#if minDetermination > 1 || baseResult.detMin > 1 || baseResult.detMax < 20}
-                            <div class="text-xs text-surface-400 text-center">
+                            <div class="text-xs text-white/50 text-center">
                                 Plage valide : <span
-                                    class="text-primary-400 font-bold"
+                                    class="text-orange-400 font-bold"
                                     >{Math.max(
                                         baseResult.detMin,
                                         minDetermination,
@@ -237,15 +239,15 @@
                         {/if}
                     </div>
 
-                    <hr class="opacity-30" />
+                    <hr class="border-white/10" />
 
                     <!-- Personality Select -->
-                    <label class="label">
-                        <span class="font-bold"
+                    <label class="block space-y-2">
+                        <span class="font-bold text-white/90"
                             >{$_("hidden_notes.personality")}</span
                         >
                         <select
-                            class="select"
+                            class="input-glass w-full"
                             bind:value={selectedPersonality}
                             onchange={resetProjects}
                         >
@@ -259,12 +261,12 @@
                     </label>
 
                     <!-- Media Handling Select -->
-                    <label class="label">
-                        <span class="font-bold"
+                    <label class="block space-y-2">
+                        <span class="font-bold text-white/90"
                             >{$_("hidden_notes.media_handling")}</span
                         >
                         <select
-                            class="select"
+                            class="input-glass w-full disabled:opacity-50"
                             bind:value={selectedMedia}
                             onchange={resetProjects}
                             disabled={!selectedPersonality}
@@ -279,7 +281,7 @@
                     </label>
 
                     <button
-                        class="btn variant-ghost-error w-full mt-4"
+                        class="btn w-full mt-4 bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/50 text-white/80 hover:text-red-300 transition-all"
                         onclick={reset}
                     >
                         <span>↺</span>
@@ -292,19 +294,19 @@
         <!-- Results Column -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Attributes Card -->
-            <div
-                class="card p-6 shadow-xl border-surface-600 bg-surface-800/80 backdrop-blur"
-            >
-                <h2 class="h2 font-bold mb-6 flex items-center gap-3">
-                    <span class="text-secondary-500">📊</span>
+            <div class="card-glass p-6">
+                <h2
+                    class="h2 font-bold mb-6 flex items-center gap-3 text-orange-500"
+                >
+                    <span>📊</span>
                     {$_("hidden_notes.attributes")}
                 </h2>
 
                 <div class="overflow-x-auto">
-                    <table class="table table-hover w-full">
+                    <table class="table w-full bg-transparent">
                         <thead>
                             <tr
-                                class="text-surface-400 uppercase text-xs tracking-wider border-b border-surface-600/50"
+                                class="text-white/60 uppercase text-xs tracking-wider border-b border-white/10"
                             >
                                 <th class="pb-3 text-left">Attribut</th>
                                 <th class="pb-3 text-center w-16">Min</th>
@@ -315,7 +317,7 @@
                                 <th class="pb-3 text-center w-16">Max</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-surface-600/30">
+                        <tbody class="divide-y divide-white/5">
                             {#each attributeKeys as attr}
                                 {@const values = getAttrValues(attr)}
                                 {@const isControversy = attr === "controversy"}
@@ -335,10 +337,10 @@
                                 {@const badgeClass = getBadgeClass(colorState)}
 
                                 <tr
-                                    class="group hover:bg-surface-700/30 transition-colors"
+                                    class="group hover:bg-white/5 transition-colors"
                                 >
                                     <td
-                                        class="font-medium flex items-center gap-2 py-4"
+                                        class="font-medium flex items-center gap-2 py-4 text-white/90"
                                     >
                                         {$_(getTranslationKey(attr))}
                                         <Tooltip
@@ -352,19 +354,19 @@
                                             colspan="3"
                                         >
                                             <span
-                                                class="badge {badgeClass} min-w-[3rem] shadow"
+                                                class="badge {badgeClass} min-w-[3rem] shadow text-white"
                                                 >{values.mid}</span
                                             >
                                         </td>
                                     {:else}
                                         <td
-                                            class="text-center font-mono text-surface-300 group-hover:text-white"
+                                            class="text-center font-mono text-white/70 group-hover:text-white"
                                             >{values.min}</td
                                         >
                                         <td class="px-4 align-middle">
                                             <!-- Visual Range Bar -->
                                             <div
-                                                class="h-3 w-full bg-surface-600/50 rounded-full relative overflow-hidden shadow-inner"
+                                                class="h-3 w-full bg-black/40 rounded-full relative overflow-hidden shadow-inner border border-white/5"
                                             >
                                                 <!-- Background track markers (guidelines) -->
                                                 <div
@@ -379,7 +381,7 @@
 
                                                 <!-- The Fill -->
                                                 <div
-                                                    class="absolute h-full rounded-full {colorClass} shadow-lg transition-all duration-500 ease-out"
+                                                    class="absolute h-full rounded-full {colorClass} shadow-[0_0_10px_currentColor] transition-all duration-500 ease-out"
                                                     style="left: {((values.min -
                                                         1) /
                                                         19) *
@@ -394,7 +396,7 @@
                                             </div>
                                         </td>
                                         <td
-                                            class="text-center font-mono text-surface-300 group-hover:text-white"
+                                            class="text-center font-mono text-white/70 group-hover:text-white"
                                             >{values.max}</td
                                         >
                                     {/if}
@@ -408,15 +410,15 @@
             <!-- Projects Section -->
             {#if visibleProjects.anyVisible}
                 <div
-                    class="card p-6 variant-soft-surface border border-surface-600/30 animate-fade-in"
+                    class="card-glass p-6 animate-fade-in border-l-4 border-emerald-500"
                 >
                     <header class="mb-4">
                         <h3
-                            class="h3 font-bold text-tertiary-500 flex items-center gap-2"
+                            class="h3 font-bold text-emerald-400 flex items-center gap-2"
                         >
                             🚀 {$_("hidden_notes.projects_title")}
                         </h3>
-                        <p class="text-sm opacity-80">
+                        <p class="text-sm text-white/60">
                             {$_("hidden_notes.projects_subtitle")}
                         </p>
                     </header>
