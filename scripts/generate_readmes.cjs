@@ -106,11 +106,11 @@ files.forEach(file => {
     // We can add a localized "Installation" section if we want, but for now sticking to content structure
     // Let's add a generic localized installation header if possible, or just "Installation"
     readmeContent += `## Installation\n`;
-    readmeContent += `1. Download the latest version from [Releases](https://github.com/AnthonyMahe/FMToolsV2/releases)\n`;
+    readmeContent += `1. Download the latest version from [Releases](https://github.com/Lib-LOCALE/FMToolsV2/releases)\n`;
     readmeContent += `2. Run the executable (Windows) or AppImage (Linux)\n\n`;
 
     readmeContent += `## Check my other projects\n`;
-    readmeContent += `- [**NewGAN-Manager-26**](https://github.com/AnthonyMahe/NewGAN-Manager-26)\n\n`;
+    readmeContent += `- [**NewGAN-Manager-26**](https://github.com/Lib-LOCALE/NewGAN-Manager-26)\n\n`;
 
     readmeContent += `## Credits\n${content.footer.based_on}\n`;
 

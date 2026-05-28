@@ -27,7 +27,8 @@
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![Tauri](https://img.shields.io/badge/Tauri-24C8D8?style=for-the-badge&logo=tauri&logoColor=white)
-![Svelte](https://img.shields.io/badge/Svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)
+![Svelte](https://img.shields.io/badge/Svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)
+
 
 ![SHA256](https://img.shields.io/badge/SHA256-Verified-green?style=flat-square&logo=checkmarx)
 ![SLSA](https://img.shields.io/badge/SLSA-Attested-blue?style=flat-square&logo=github)
@@ -56,7 +57,7 @@
 </p>
 
 ## 설치
-1. [Releases](https://github.com/AnthonyMahe/FMToolsV2/releases)에서 최신 버전을 다운로드합니다
+1. [Releases](https://github.com/Lib-LOCALE/FMToolsV2/releases)에서 최신 버전을 다운로드합니다
 2. 실행 파일 (Windows) 또는 AppImage (Linux)를 실행합니다
 
 
@@ -65,7 +66,7 @@ All releases are cryptographically signed and verified:
 - **SHA256 Checksums**: Compare with `checksums_windows.txt` / `checksums_linux.txt`
 - **GitHub Attestations**: Verify build provenance with:
 ```bash
-gh attestation verify <downloaded-file> --owner AnthonyMahe
+gh attestation verify <downloaded-file> --owner Lib-LOCALE
 ```
 
 ## 지원 언어 (FM26 공식)
@@ -128,7 +129,7 @@ After numerous tests on Football Manager in recent years, Kinito and DoctorDim h
 </p>
 
 ## Installation
-1. Download the latest version from [Releases](https://github.com/AnthonyMahe/FMToolsV2/releases)
+1. Download the latest version from [Releases](https://github.com/Lib-LOCALE/FMToolsV2/releases)
 2. Run the executable (Windows) or AppImage (Linux)
 
 ## 🔒 Security Verification
@@ -136,14 +137,14 @@ All releases are cryptographically signed and verified:
 - **SHA256 Checksums**: Compare with `checksums_windows.txt` / `checksums_linux.txt`
 - **GitHub Attestations**: Verify build provenance with:
 ```bash
-gh attestation verify <downloaded-file> --owner AnthonyMahe
+gh attestation verify <downloaded-file> --owner Lib-LOCALE
 ```
 
 ## Supported Languages (FM26 Official)
 <img src="https://hatscripts.github.io/circle-flags/flags/fr.svg" width="16"> Français | <img src="https://hatscripts.github.io/circle-flags/flags/gb.svg" width="16"> English | <img src="https://hatscripts.github.io/circle-flags/flags/de.svg" width="16"> Deutsch | <img src="https://hatscripts.github.io/circle-flags/flags/es.svg" width="16"> Español | <img src="https://hatscripts.github.io/circle-flags/flags/it.svg" width="16"> Italiano | <img src="https://hatscripts.github.io/circle-flags/flags/pt.svg" width="16"> Português | <img src="https://hatscripts.github.io/circle-flags/flags/nl.svg" width="16"> Nederlands | <img src="https://hatscripts.github.io/circle-flags/flags/pl.svg" width="16"> Polski | <img src="https://hatscripts.github.io/circle-flags/flags/gr.svg" width="16"> Ελληνικά | <img src="https://hatscripts.github.io/circle-flags/flags/se.svg" width="16"> Svenska | <img src="https://hatscripts.github.io/circle-flags/flags/dk.svg" width="16"> Dansk | <img src="https://hatscripts.github.io/circle-flags/flags/cn.svg" width="16"> 简体中文 | <img src="https://hatscripts.github.io/circle-flags/flags/kr.svg" width="16"> 한국어
 
 ## Check my other projects
-- [**NewGAN-Manager-26**](https://github.com/AnthonyMahe/NewGAN-Manager-26)
+- [**NewGAN-Manager-26**](https://github.com/Lib-LOCALE/NewGAN-Manager-26)
 
 ## Credits
 Based on work by Gilgiltsu, Kinito & DoctorDim
@@ -152,7 +153,7 @@ Based on work by Gilgiltsu, Kinito & DoctorDim
 <a href="https://liberapay.com/TonyBoySUPER/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
 
 ## 다른 프로젝트 확인
-- [**NewGAN-Manager-26**](https://github.com/AnthonyMahe/NewGAN-Manager-26)
+- [**NewGAN-Manager-26**](https://github.com/Lib-LOCALE/NewGAN-Manager-26)
 
 ## 크레딧
 Gilgiltsu, Kinito & DoctorDim의 연구를 기반으로 함
