@@ -24,7 +24,7 @@ jobs:
           ## Security Verification
           All artifacts are signed with GitHub Attestations. Verify with:
           \`\`\`bash
-          gh attestation verify <downloaded-file> --owner AnthonyMahe
+          gh attestation verify <downloaded-file> --owner Lib-LOCALE
           \`\`\`
 
           SHA256 checksums are included in \`checksums.txt\` for integrity verification.
