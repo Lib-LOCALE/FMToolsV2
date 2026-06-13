@@ -4,649 +4,338 @@
         DEFAULT_ATTRIBUTES,
         calculateStaffRatings,
         FM26_LEVELS,
-        getFM26LevelByKey,
         type StaffAttributes,
         type FM26Level,
     } from "$lib/logic/staff-evaluation";
 
     let attributes = $state<StaffAttributes>({ ...DEFAULT_ATTRIBUTES });
-
     let ratings = $derived(calculateStaffRatings(attributes));
 
     function reset() {
         attributes = { ...DEFAULT_ATTRIBUTES };
     }
 
-    function handleSelect(key: keyof StaffAttributes, event: Event) {
-        const value = (event.target as HTMLSelectElement).value;
-        attributes[key] = value;
+    function hexA(hex: string, a: number): string {
+        const h = hex.replace("#", "");
+        const r = parseInt(h.substring(0, 2), 16);
+        const g = parseInt(h.substring(2, 4), 16);
+        const b = parseInt(h.substring(4, 6), 16);
+        return `rgba(${r},${g},${b},${a})`;
     }
 
-    function getLevelBadge(level: FM26Level): string {
-        return level.cssClass;
-    }
+    const labelKey: Record<keyof StaffAttributes, string> = {
+        fitness: "staff.fitness",
+        setPieces: "staff.set_pieces",
+        defending: "staff.defending",
+        mental: "staff.mental_attr",
+        attacking: "staff.attacking",
+        tactical: "staff.tactical",
+        technical: "staff.technical",
+        motivating: "staff.motivating",
+        determination: "staff.determination",
+        discipline: "staff.discipline",
+        gkShotStopping: "staff.gk_shot_stopping",
+        gkHandling: "staff.gk_handling",
+        gkDistribution: "staff.gk_distribution",
+        tacticalKnowledge: "staff.tactical_knowledge",
+    };
 
-    // Liste des attributs pour les formulaires
-    const coachingAttrs: (keyof StaffAttributes)[] = [
-        "fitness",
-        "setPieces",
-        "defending",
-        "mental",
-        "attacking",
-        "tactical",
-        "technical",
+    const groups: {
+        titleKey: string;
+        icon: string;
+        attrs: (keyof StaffAttributes)[];
+    }[] = [
+        { titleKey: "staff.training", icon: "ball", attrs: ["fitness", "setPieces", "defending", "mental", "attacking", "tactical", "technical"] },
+        { titleKey: "staff.mental", icon: "target", attrs: ["motivating", "determination", "discipline"] },
+        { titleKey: "staff.gk_training", icon: "gk", attrs: ["gkShotStopping", "gkHandling", "gkDistribution"] },
+        { titleKey: "staff.knowledge", icon: "clip", attrs: ["tacticalKnowledge"] },
     ];
-    const mentalAttrs: (keyof StaffAttributes)[] = [
-        "motivating",
-        "determination",
-        "discipline",
-    ];
-    const gkAttrs: (keyof StaffAttributes)[] = [
-        "gkShotStopping",
-        "gkHandling",
-        "gkDistribution",
-    ];
-    const knowledgeAttrs: (keyof StaffAttributes)[] = ["tacticalKnowledge"];
+
+    let results = $derived([
+        { catKey: "staff.goalkeeper", subKey: "staff.shot_stopping", icon: "gk", level: ratings.goalkeeper.shotStopping },
+        { catKey: "staff.goalkeeper", subKey: "staff.handling", icon: "gk", level: ratings.goalkeeper.handling },
+        { catKey: "staff.defense", subKey: "staff.tactical", icon: "shield", level: ratings.defense.tactical },
+        { catKey: "staff.defense", subKey: "staff.technical", icon: "shield", level: ratings.defense.technical },
+        { catKey: "staff.offensive", subKey: "staff.tactical", icon: "ball", level: ratings.offensive.tactical },
+        { catKey: "staff.offensive", subKey: "staff.technical", icon: "ball", level: ratings.offensive.technical },
+        { catKey: "staff.possession", subKey: "staff.tactical", icon: "target", level: ratings.possession.tactical },
+        { catKey: "staff.possession", subKey: "staff.technical", icon: "target", level: ratings.possession.technical },
+        { catKey: "staff.physical", subKey: "staff.power", icon: "power", level: ratings.physical.power },
+        { catKey: "staff.physical", subKey: "staff.quickness", icon: "power", level: ratings.physical.quickness },
+        { catKey: "staff.set_pieces", subKey: "", icon: "corner", level: ratings.setPieces },
+    ]);
 </script>
 
 <svelte:head>
-    <title>{$_("staff.title")} - FMTools</title>
+    <title>{$_("staff.title")} — FM·TOOLS</title>
 </svelte:head>
 
-<div class="page-container">
-    <header class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">{$_("staff.title")}</h1>
-            <p class="page-subtitle">{$_("staff.description")}</p>
-        </div>
-        <img src="/fm26-logo.png" alt="FM26" class="fm26-logo" />
+<div style="animation: fmFade .4s ease;">
+    <header class="page-head">
+        <div class="fm-eyebrow">MODULE 02</div>
+        <h1 class="fm-h1">{$_("staff.title")}</h1>
+        <p class="page-sub">{$_("staff.description")}</p>
     </header>
 
-    <!-- Légende FM26 -->
-    <div class="fm26-legend">
-        <h3>{$_("staff.attribute_level")}</h3>
+    <!-- legend -->
+    <div class="legend-box">
+        <div class="legend-label fm-mono">{$_("staff.attribute_level")} · FM26</div>
         <div class="legend-items">
-            {#each FM26_LEVELS as level}
-                <div class="legend-item">
-                    <span class="level-badge {level.cssClass}">
-                        {$_(level.labelKey)}
-                    </span>
-                    <span class="legend-range">{level.min}-{level.max}</span>
-                </div>
+            {#each FM26_LEVELS as lv}
+                <span
+                    class="legend-chip"
+                    style="background:{hexA(lv.color, 0.13)}; border-color:{hexA(lv.color, 0.3)};"
+                >
+                    <span class="chip-label" style="color:{lv.color};">{$_(lv.labelKey)}</span>
+                    <span class="chip-range fm-mono">{lv.min === lv.max ? lv.min : `${lv.min}-${lv.max}`}</span>
+                </span>
             {/each}
         </div>
     </div>
 
-    <div class="staff-grid">
-        <!-- Formulaires de saisie avec dropdowns -->
-        <div class="input-section">
-            <!-- Entrainement -->
-            <div class="card-glass p-6">
-                <h3
-                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
-                >
-                    <span class="title-icon">⚽</span>
-                    {$_("staff.training")}
-                </h3>
-                <div class="input-grid">
-                    {#each coachingAttrs as attr}
-                        <div class="input-row">
-                            <label
-                                >{$_(
-                                    `staff.${attr === "setPieces" ? "set_pieces" : attr === "mental" ? "mental_attr" : attr}`,
-                                )}</label
-                            >
-                            <select
-                                class="input-glass"
-                                value={attributes[attr]}
-                                onchange={(e) => handleSelect(attr, e)}
-                            >
-                                {#each FM26_LEVELS as level}
-                                    <option value={level.key}
-                                        >{$_(level.labelKey)}</option
-                                    >
-                                {/each}
-                            </select>
-                        </div>
-                    {/each}
+    <div class="layout">
+        <!-- inputs -->
+        <div class="inputs">
+            {#each groups as g}
+                <div class="fm-panel input-card">
+                    <div class="input-head">
+                        <span class="input-icon">
+                            {#if g.icon === "ball"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4" /><path d="M12 7.5l3.2 2.3-1.2 3.7h-4l-1.2-3.7z" /></svg>
+                            {:else if g.icon === "target"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4" /><circle cx="12" cy="12" r="3.4" /></svg>
+                            {:else if g.icon === "gk"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.6V11c0 4.6-3 7.6-7 9.4C8 18.6 5 15.6 5 11V5.6z" /></svg>
+                            {:else}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="4" width="13" height="16.5" rx="2.2" /><path d="M9 4.2h6V7H9zM9 11h6M9 15h4" /></svg>
+                            {/if}
+                        </span>
+                        <span class="fm-panel-title" style="font-size:17px;">{$_(g.titleKey)}</span>
+                    </div>
+                    <div class="input-rows">
+                        {#each g.attrs as attr}
+                            <div class="input-row">
+                                <label class="row-label" for="sel-{attr}">{$_(labelKey[attr])}</label>
+                                <select id="sel-{attr}" class="fm-select row-select" bind:value={attributes[attr]}>
+                                    {#each FM26_LEVELS as level}
+                                        <option value={level.key}>{$_(level.labelKey)}</option>
+                                    {/each}
+                                </select>
+                            </div>
+                        {/each}
+                    </div>
                 </div>
-            </div>
-
-            <!-- Mental -->
-            <div class="card-glass p-6">
-                <h3
-                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
-                >
-                    <span class="title-icon">🧠</span>
-                    {$_("staff.mental")}
-                </h3>
-                <div class="input-grid">
-                    {#each mentalAttrs as attr}
-                        <div class="input-row">
-                            <label>{$_(`staff.${attr}`)}</label>
-                            <select
-                                class="input-glass"
-                                value={attributes[attr]}
-                                onchange={(e) => handleSelect(attr, e)}
-                            >
-                                {#each FM26_LEVELS as level}
-                                    <option value={level.key}
-                                        >{$_(level.labelKey)}</option
-                                    >
-                                {/each}
-                            </select>
-                        </div>
-                    {/each}
-                </div>
-            </div>
-
-            <!-- Gardiens -->
-            <div class="card-glass p-6">
-                <h3
-                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
-                >
-                    <span class="title-icon">🧤</span>
-                    {$_("staff.gk_training")}
-                </h3>
-                <div class="input-grid">
-                    {#each gkAttrs as attr}
-                        <div class="input-row">
-                            <label
-                                >{$_(
-                                    `staff.${attr === "gkShotStopping" ? "gk_shot_stopping" : attr === "gkHandling" ? "gk_handling" : "gk_distribution"}`,
-                                )}</label
-                            >
-                            <select
-                                class="input-glass"
-                                value={attributes[attr]}
-                                onchange={(e) => handleSelect(attr, e)}
-                            >
-                                {#each FM26_LEVELS as level}
-                                    <option value={level.key}
-                                        >{$_(level.labelKey)}</option
-                                    >
-                                {/each}
-                            </select>
-                        </div>
-                    {/each}
-                </div>
-            </div>
-
-            <!-- Connaissances -->
-            <div class="card-glass p-6">
-                <h3
-                    class="h3 font-bold mb-4 flex items-center gap-2 text-orange-500"
-                >
-                    <span class="title-icon">📚</span>
-                    {$_("staff.knowledge")}
-                </h3>
-                <div class="input-grid">
-                    {#each knowledgeAttrs as attr}
-                        <div class="input-row">
-                            <label>{$_("staff.tactical_knowledge")}</label>
-                            <select
-                                class="input-glass"
-                                value={attributes[attr]}
-                                onchange={(e) => handleSelect(attr, e)}
-                            >
-                                {#each FM26_LEVELS as level}
-                                    <option value={level.key}
-                                        >{$_(level.labelKey)}</option
-                                    >
-                                {/each}
-                            </select>
-                        </div>
-                    {/each}
-                </div>
-                <button class="btn btn-primary reset-btn" onclick={reset}>
-                    <span>🔄</span>
-                    {$_("staff.reset")}
-                </button>
-            </div>
+            {/each}
+            <button class="fm-reset-btn" onclick={reset}>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 1 2.2 5.7" /><path d="M3 21v-5h5" /></svg>
+                {$_("staff.reset")}
+            </button>
         </div>
 
-        <!-- Tableau des résultats avec système FM26 -->
-        <div class="results-section">
-            <div class="card results-card">
-                <h3 class="results-title">{$_("staff.evaluation")}</h3>
-                <table class="table results-table">
-                    <thead>
-                        <tr>
-                            <th colspan="2">{$_("staff.assignment")}</th>
-                            <th class="text-center">FM26</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Gardien -->
-                        <tr>
-                            <td class="cat-icon">🧤</td>
-                            <td>
-                                <div class="cat-name">
-                                    {$_("staff.goalkeeper")}
-                                </div>
-                                <div class="sub-name">
-                                    {$_("staff.shot_stopping")}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.goalkeeper.shotStopping,
-                                    )}"
-                                >
-                                    {$_(
-                                        ratings.goalkeeper.shotStopping
-                                            .labelKey,
-                                    )}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td
-                                ><div class="sub-name">
-                                    {$_("staff.handling")}
-                                </div></td
-                            >
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.goalkeeper.handling,
-                                    )}"
-                                >
-                                    {$_(ratings.goalkeeper.handling.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-
-                        <!-- Défense -->
-                        <tr>
-                            <td class="cat-icon">🛡️</td>
-                            <td>
-                                <div class="cat-name">
-                                    {$_("staff.defense")}
-                                </div>
-                                <div class="sub-name">
-                                    {$_("staff.tactical")}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.defense.tactical,
-                                    )}"
-                                >
-                                    {$_(ratings.defense.tactical.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td
-                                ><div class="sub-name">
-                                    {$_("staff.technical")}
-                                </div></td
-                            >
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.defense.technical,
-                                    )}"
-                                >
-                                    {$_(ratings.defense.technical.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-
-                        <!-- Offensif -->
-                        <tr>
-                            <td class="cat-icon">⚽</td>
-                            <td>
-                                <div class="cat-name">
-                                    {$_("staff.offensive")}
-                                </div>
-                                <div class="sub-name">
-                                    {$_("staff.tactical")}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.offensive.tactical,
-                                    )}"
-                                >
-                                    {$_(ratings.offensive.tactical.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td
-                                ><div class="sub-name">
-                                    {$_("staff.technical")}
-                                </div></td
-                            >
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.offensive.technical,
-                                    )}"
-                                >
-                                    {$_(ratings.offensive.technical.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-
-                        <!-- Possession -->
-                        <tr>
-                            <td class="cat-icon">🎯</td>
-                            <td>
-                                <div class="cat-name">
-                                    {$_("staff.possession")}
-                                </div>
-                                <div class="sub-name">
-                                    {$_("staff.tactical")}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.possession.tactical,
-                                    )}"
-                                >
-                                    {$_(ratings.possession.tactical.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td
-                                ><div class="sub-name">
-                                    {$_("staff.technical")}
-                                </div></td
-                            >
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.possession.technical,
-                                    )}"
-                                >
-                                    {$_(ratings.possession.technical.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-
-                        <!-- Physique -->
-                        <tr>
-                            <td class="cat-icon">💪</td>
-                            <td>
-                                <div class="cat-name">
-                                    {$_("staff.physical")}
-                                </div>
-                                <div class="sub-name">{$_("staff.power")}</div>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.physical.power,
-                                    )}"
-                                >
-                                    {$_(ratings.physical.power.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td
-                                ><div class="sub-name">
-                                    {$_("staff.quickness")}
-                                </div></td
-                            >
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.physical.quickness,
-                                    )}"
-                                >
-                                    {$_(ratings.physical.quickness.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-
-                        <!-- Coups de pieds arrêtés -->
-                        <tr>
-                            <td class="cat-icon">🎾</td>
-                            <td>
-                                <div class="cat-name">
-                                    {$_("staff.set_pieces")}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="level-badge {getLevelBadge(
-                                        ratings.setPieces,
-                                    )}"
-                                >
-                                    {$_(ratings.setPieces.labelKey)}
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- results -->
+        <div class="fm-panel results">
+            <div class="results-head">
+                <span class="fm-panel-title" style="font-size:19px;">{$_("staff.evaluation")}</span>
+                <span class="fm26-tag fm-mono">FM26</span>
+            </div>
+            <div>
+                {#each results as r}
+                    <div class="result-row">
+                        <span class="result-icon">
+                            {#if r.icon === "gk"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.6V11c0 4.6-3 7.6-7 9.4C8 18.6 5 15.6 5 11V5.6z" /></svg>
+                            {:else if r.icon === "shield"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.6V11c0 4.6-3 7.6-7 9.4C8 18.6 5 15.6 5 11V5.6z" /></svg>
+                            {:else if r.icon === "ball"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4" /><path d="M12 7.5l3.2 2.3-1.2 3.7h-4l-1.2-3.7z" /></svg>
+                            {:else if r.icon === "target"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4" /><circle cx="12" cy="12" r="3.4" /></svg>
+                            {:else if r.icon === "power"}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l-8 10h6l-1 8 8-10h-6z" /></svg>
+                            {:else}
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M6 4h11l-2.5 3.5L17 11H6" /></svg>
+                            {/if}
+                        </span>
+                        <div class="result-text">
+                            <div class="result-cat">{$_(r.catKey)}</div>
+                            <div class="result-sub fm-mono">{r.subKey ? $_(r.subKey) : "—"}</div>
+                        </div>
+                        <span
+                            class="level-tag"
+                            style="background:{hexA(r.level.color, 0.14)}; border:1px solid {hexA(r.level.color, 0.32)}; color:{r.level.color};"
+                        >
+                            {$_(r.level.labelKey)}
+                        </span>
+                    </div>
+                {/each}
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .page-container {
-        animation: fadeIn 0.4s ease;
+    .page-head {
+        margin-bottom: 24px;
     }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
+    .fm-eyebrow {
+        margin-bottom: 12px;
     }
-
-    .page-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin: 0 0 0.25rem 0;
-        background: linear-gradient(135deg, #ff6b00 0%, #ff9a4a 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .page-subtitle {
-        color: var(--color-text-secondary);
+    .page-sub {
+        color: var(--muted);
+        font-size: 15px;
         margin: 0;
+        max-width: 660px;
+        line-height: 1.6;
     }
 
-    .fm26-logo {
-        height: 42px;
-        width: auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        transition: transform 0.2s ease;
+    .legend-box {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 22px;
     }
-
-    .fm26-logo:hover {
-        transform: scale(1.05);
+    .legend-label {
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: var(--faint);
+        margin-bottom: 11px;
     }
-
-    .fm26-legend {
-        margin-bottom: 1.5rem;
-        padding: 1rem 1.5rem;
-        background: var(--color-bg-card);
-        border: 1px solid var(--color-border);
-        border-radius: 12px;
-    }
-
-    .fm26-legend h3 {
-        font-size: 0.8rem;
-        color: var(--color-text-muted);
-        margin: 0 0 0.75rem 0;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }
-
     .legend-items {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: 8px;
     }
-
-    .legend-item {
-        display: flex;
+    .legend-chip {
+        display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 7px;
+        padding: 5px 11px;
+        border-radius: 8px;
+        border: 1px solid;
+    }
+    .chip-label {
+        font-weight: 700;
+        font-size: 12px;
+    }
+    .chip-range {
+        font-size: 10px;
+        color: var(--faint);
     }
 
-    .legend-range {
-        font-size: 0.7rem;
-        color: var(--color-text-muted);
-    }
-
-    .staff-grid {
+    .layout {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        gap: 22px;
         align-items: start;
     }
-
-    .input-section {
+    .inputs {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 14px;
     }
-
-    .input-section .card {
-        padding: 1.25rem 1.5rem;
+    .input-card {
+        border-radius: 14px;
+        padding: 18px 20px;
     }
-
-    .card-title {
+    .input-head {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--color-accent-primary);
-        margin: 0 0 1rem 0;
+        gap: 9px;
+        margin-bottom: 16px;
     }
-
-    .title-icon {
-        font-size: 1.2rem;
+    .input-icon {
+        color: var(--lime);
+        display: flex;
     }
-
-    .input-grid {
+    .input-rows {
         display: flex;
         flex-direction: column;
-        gap: 0.6rem;
+        gap: 10px;
     }
-
     .input-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 1rem;
+        justify-content: space-between;
+        gap: 14px;
     }
-
-    .input-row label {
-        font-size: 0.85rem;
-        color: var(--color-text-secondary);
+    .row-label {
+        font-size: 13px;
+        color: var(--muted);
         flex: 1;
     }
-
-    .input-row select {
-        width: 160px;
-        padding: 0.5rem 2rem 0.5rem 0.75rem;
-        font-size: 0.85rem;
+    .row-select {
+        width: 165px;
+        padding: 8px 10px;
+        font-size: 12.5px;
+        border-radius: 9px;
     }
 
-    .reset-btn {
-        margin-top: 1.25rem;
-        width: 100%;
-    }
-
-    .results-section {
+    .results {
         position: sticky;
-        top: 80px;
-    }
-
-    .results-card {
-        padding: 0;
+        top: 0;
         overflow: hidden;
     }
-
-    .results-title {
-        padding: 1rem 1.5rem;
-        margin: 0;
-        background: var(--color-bg-secondary);
-        border-bottom: 1px solid var(--color-border);
-        font-size: 1rem;
-        color: var(--color-accent-primary);
+    .results-head {
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--line2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
-
-    .results-table th {
-        background: rgba(107, 74, 158, 0.2);
-        padding: 0.85rem 1rem;
-        font-size: 0.7rem;
+    .fm26-tag {
+        font-size: 11px;
+        color: var(--lime);
+        border: 1px solid rgba(200, 242, 78, 0.3);
+        padding: 3px 9px;
+        border-radius: 7px;
     }
-
-    .results-table td {
-        padding: 0.65rem 1rem;
+    .result-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--line2);
     }
-
-    .cat-icon {
-        font-size: 1.4rem;
-        width: 45px;
-        text-align: center;
+    .result-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        flex-shrink: 0;
     }
-
-    .cat-name {
+    .result-text {
+        flex: 1;
+    }
+    .result-cat {
+        font-size: 14px;
         font-weight: 600;
-        color: var(--color-text-primary);
-        font-size: 0.9rem;
+        color: var(--txt);
+    }
+    .result-sub {
+        font-size: 11.5px;
+        color: var(--faint);
+    }
+    .level-tag {
+        font-weight: 700;
+        font-size: 12.5px;
+        padding: 5px 12px;
+        border-radius: 8px;
     }
 
-    .sub-name {
-        font-size: 0.8rem;
-        color: var(--color-text-secondary);
-    }
-
-    @media (max-width: 900px) {
-        .staff-grid {
+    @media (max-width: 860px) {
+        .layout {
             grid-template-columns: 1fr;
         }
-
-        .results-section {
+        .results {
             position: static;
         }
-
-        .input-row {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.35rem;
-        }
-
-        .input-row select {
-            width: 100%;
-        }
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .row-select {
+            width: 150px;
         }
     }
 </style>
