@@ -2,157 +2,181 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+   FM·TOOLS — "Terminal d'analyse football premium"
+   Fond encre quasi-noir verdâtre · accent vert citron pelouse
+   Saira Condensed (titres) · Archivo (data) · JetBrains Mono (chiffres)
+*/
 :root {
-    /* Premium Palette - Dark Mode Foundation */
-    --color-violet-900: 30 20 50;
-    /* Deepest Violet */
-    --color-violet-800: 45 25 70;
-    --color-violet-500: 107 74 158;
-    /* Primary Violet */
+    --ink: #07090a;
+    --panel: #101413;
+    --panel2: #161b19;
+    --panel3: #1c2320;
+    --line: rgba(255, 255, 255, 0.08);
+    --line2: rgba(255, 255, 255, 0.045);
+    --txt: #eef2ed;
+    --muted: #969f97;
+    --faint: #5d655e;
+    --lime: #c8f24e;
+    --lime2: #a9e02f;
+    --limeDim: rgba(200, 242, 78, 0.13);
+    --pos: #74e06b;
+    --neu: #7c8a83;
+    --neg: #ef6256;
+    --info: #5fb0e8;
 
-    --color-orange-500: 249 115 22;
-    /* Vibrant Orange */
-    --color-blue-500: 59 130 246;
-    /* Info Blue */
+    --font-display: 'Saira Condensed', 'Archivo', system-ui, sans-serif;
+    --font-body: 'Archivo', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
 
-    /* Glass Tokens */
-    --glass-surface: rgba(30, 20, 50, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-highlight: rgba(255, 255, 255, 0.15);
-    --glass-blur: 16px;
+* {
+    box-sizing: border-box;
 }
 
 html,
 body {
-    @apply h-full overflow-hidden;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: white;
-    /* Default text color for dark mode */
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
 }
 
-/* Background Premium Global */
-/* Use a rich gradient overlay on top of the image or as standalone if image fails */
 body {
-    background-color: rgb(15, 10, 30);
-    /* fallback */
-    background-image:
-        linear-gradient(135deg, rgba(15, 10, 30, 0.92) 0%, rgba(45, 20, 60, 0.85) 100%),
-        url('/background.webp');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+    background: var(--ink);
+    color: var(--txt);
+    font-family: var(--font-body);
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* 
-   GLASSMORPHISM UTILITIES 
-   Can be used as classes: .card-glass, .btn-glass 
-*/
-@layer components {
-    .card-glass {
-        @apply rounded-xl border border-white/10 backdrop-blur-md shadow-xl;
-        background: linear-gradient(145deg,
-                rgba(255, 255, 255, 0.07) 0%,
-                rgba(255, 255, 255, 0.03) 100%);
-        box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.3),
-            0 2px 4px -1px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    .card-glass-header {
-        @apply px-4 py-3 border-b border-white/5 font-semibold tracking-wide text-white/90;
-        background: rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-glass {
-        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-        }
-    }
-
-    .btn-action {
-        @apply btn-glass bg-orange-600/80 border-orange-500/50 text-white;
-
-        &:hover {
-            @apply bg-orange-500/90 border-orange-400;
-            box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
-        }
-    }
-
-    .input-glass {
-        @apply bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all;
-
-        /* Fix for breakdown options being white-on-white in some browsers */
-        & option {
-            @apply bg-slate-900 text-white;
-            background-color: rgb(30, 20, 50);
-            /* Match theme dark violet */
-        }
-    }
-}
-
-/* Scrollbar Customization */
+/* Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.22);
 }
 
-/* 
-   LEGACY / SPECIFIC STYLES 
-   Preserved from previous implementation 
-*/
-.level-badge {
-    @apply inline-block px-3 py-1 rounded font-bold text-xs text-white shadow-sm;
+@keyframes fmGlow {
+    0%, 100% { opacity: .5; }
+    50% { opacity: .8; }
 }
 
-.level-elite {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+@keyframes fmFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
 }
 
-.level-outstanding {
-    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-}
+/* ---------- shared component primitives ---------- */
+@layer components {
+    .fm-display {
+        font-family: var(--font-display);
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
 
-.level-very-good {
-    background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
-}
+    .fm-mono {
+        font-family: var(--font-mono);
+    }
 
-.level-good {
-    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-}
+    .fm-eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: var(--lime2);
+    }
 
-.level-average {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-}
+    .fm-panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+    }
 
-.level-competent {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-}
+    .fm-panel-head {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--line2);
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
 
-.level-reasonable {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-}
+    .fm-panel-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 18px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--txt);
+    }
 
-.level-unsuited {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    .fm-h1 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 46px;
+        line-height: 1.08;
+        letter-spacing: -.3px;
+        margin: 0 0 12px;
+        text-transform: uppercase;
+    }
+
+    .fm-select {
+        width: 100%;
+        color-scheme: dark;
+        background: var(--panel3);
+        border: 1px solid var(--line);
+        color: var(--txt);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        cursor: pointer;
+        outline: none;
+        transition: border-color .2s;
+    }
+
+    .fm-select:focus {
+        border-color: rgba(200, 242, 78, 0.4);
+    }
+
+    .fm-select:disabled {
+        color: var(--faint);
+        cursor: not-allowed;
+        opacity: .5;
+    }
+
+    .fm-reset-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 11px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+        color: var(--muted);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-weight: 600;
+        font-size: 13px;
+        transition: all .2s;
+    }
+
+    .fm-reset-btn:hover {
+        background: rgba(239, 98, 86, 0.12);
+        border-color: rgba(239, 98, 86, 0.4);
+        color: #f0857c;
+    }
 }

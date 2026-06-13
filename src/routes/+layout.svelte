@@ -1,11 +1,11 @@
 <script lang="ts">
     import "../app.css";
     import "$lib/i18n/i18n";
-    import { waitLocale, _ } from "svelte-i18n";
+    import { waitLocale } from "svelte-i18n";
     import { onMount } from "svelte";
-    import { AppShell } from "@skeletonlabs/skeleton";
-    import Navbar from "$lib/components/Navbar.svelte";
+    import Sidebar from "$lib/components/Sidebar.svelte";
 
+    let { children } = $props();
     let ready = $state(false);
 
     onMount(async () => {
@@ -15,62 +15,109 @@
 </script>
 
 {#if ready}
-    <!-- AppShell with transparent background to let body background show through -->
-    <AppShell
-        slotSidebarLeft="bg-transparent"
-        slotPageHeader="bg-transparent"
-        regionPage="bg-transparent scroll-smooth overflow-y-auto"
-    >
-        <svelte:fragment slot="header">
-            <Navbar />
-        </svelte:fragment>
+    <div class="app-shell">
+        <!-- ambient glow -->
+        <div class="glow glow-lime"></div>
+        <div class="glow glow-blue"></div>
 
-        <!-- Main Content Wrapper with Flex Column for Footer positioning -->
-        <div class="min-h-full flex flex-col justify-between">
-            <div class="container mx-auto p-4 md:p-8 max-w-7xl flex-1">
-                <slot />
+        <Sidebar />
+
+        <main class="main">
+            <div class="main-inner">
+                {@render children?.()}
             </div>
-
-            <!-- Footer component moved inside main flow -->
-            <footer
-                class="bg-violet-900/40 backdrop-blur-md border-t border-white/5 p-6 text-center text-sm text-white/50 mt-12"
-            >
-                <div>
-                    {$_("footer.copyright")}
-                    <span class="mx-2">•</span>
-                    <a
-                        href="https://github.com/Gilgiltsu/FMTools"
-                        target="_blank"
-                        rel="noopener"
-                        class="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                    >
-                        {$_("footer.based_on")}
-                    </a>
-                </div>
-                <div class="mt-4">
-                    <a
-                        href="https://liberapay.com/TonyBoySUPER/donate"
-                        target="_blank"
-                        rel="noopener"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:scale-105"
-                    >
-                        <img
-                            alt="Donate using Liberapay"
-                            src="https://liberapay.com/assets/widgets/donate.svg"
-                            class="h-5"
-                        />
-                        <span class="font-medium text-white/80"
-                            >Soutenir le projet</span
-                        >
-                    </a>
-                </div>
-            </footer>
-        </div>
-    </AppShell>
+        </main>
+    </div>
 {:else}
-    <div class="h-screen w-full flex items-center justify-center bg-slate-900">
-        <div
-            class="w-12 h-12 rounded-full border-2 border-surface-600 border-t-primary-500 animate-spin"
-        ></div>
+    <div class="loader-wrap">
+        <div class="loader"></div>
     </div>
 {/if}
+
+<style>
+    .app-shell {
+        display: flex;
+        height: 100vh;
+        width: 100%;
+        background: var(--ink);
+        color: var(--txt);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .glow {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .glow-lime {
+        top: -280px;
+        left: -120px;
+        width: 680px;
+        height: 680px;
+        background: radial-gradient(
+            circle,
+            rgba(200, 242, 78, 0.1),
+            transparent 65%
+        );
+        filter: blur(8px);
+        animation: fmGlow 9s ease-in-out infinite;
+    }
+
+    .glow-blue {
+        bottom: -300px;
+        right: -160px;
+        width: 620px;
+        height: 620px;
+        background: radial-gradient(
+            circle,
+            rgba(95, 176, 232, 0.07),
+            transparent 65%
+        );
+    }
+
+    .main {
+        flex: 1;
+        height: 100%;
+        overflow-y: auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .main-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 40px 36px 64px;
+    }
+
+    @media (max-width: 860px) {
+        .main-inner {
+            padding: 28px 20px 48px;
+        }
+    }
+
+    .loader-wrap {
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ink);
+    }
+
+    .loader {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 3px solid var(--line);
+        border-top-color: var(--lime);
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
