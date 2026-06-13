@@ -1,7 +1,5 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
-    import Tooltip from "$lib/components/Tooltip.svelte";
-    import { RangeSlider } from "@skeletonlabs/skeleton";
     import {
         PERSONALITIES,
         MEDIA_HANDLINGS,
@@ -14,11 +12,10 @@
         type CalculationResult,
     } from "$lib/logic/hidden-notes";
 
-    let determination = $state(1);
+    let determination = $state(10);
     let selectedPersonality = $state<string | null>(null);
     let selectedMedia = $state<string | null>(null);
 
-    // État des projets
     let projects = $state<PlayerProjects>({
         shortTermPlaytime: false,
         longTermPlaytime: false,
@@ -26,67 +23,35 @@
         captain: false,
     });
 
-    // Médias compatibles selon la personnalité
     let compatibleMedia = $derived(getCompatibleMedia(selectedPersonality));
 
-    // Reset media when personality changes and media is incompatible
     $effect(() => {
         if (selectedMedia && !compatibleMedia.includes(selectedMedia)) {
             selectedMedia = null;
         }
     });
 
-    // Calcul des attributs de base
     let baseResult = $derived(
-        calculateHiddenAttributes(
-            selectedPersonality,
-            selectedMedia,
-            determination,
-        ),
+        calculateHiddenAttributes(selectedPersonality, selectedMedia, determination),
     );
 
-    // Clamp determination to valid range
-    $effect(() => {
-        if (determination < baseResult.detMin) {
-            determination = baseResult.detMin;
-        }
-        if (determination > baseResult.detMax) {
-            determination = baseResult.detMax;
-        }
-    });
-
-    // Projets visibles selon les attributs actuels
-    let visibleProjects = $derived(
-        getVisibleProjects(baseResult, determination),
-    );
-
-    // Attributs finaux après application des projets
     let finalData = $derived(applyProjects(baseResult, projects));
     let result = $derived(finalData.result);
     let minDetermination = $derived(finalData.minDetermination);
 
-    // Effective determination
-    let effectiveDetermination = $derived(
-        Math.max(determination, minDetermination),
-    );
+    let detMin = $derived(Math.max(baseResult.detMin, minDetermination));
+    let detMax = $derived(baseResult.detMax);
 
-    const attributeKeys = [
-        "professionalism",
-        "pressure",
-        "temperament",
-        "ambition",
-        "loyalty",
-        "sportsmanship",
-        "controversy",
-    ] as const;
+    $effect(() => {
+        if (determination < detMin) determination = detMin;
+        if (determination > detMax) determination = detMax;
+    });
+
+    let visibleProjects = $derived(getVisibleProjects(baseResult, determination));
 
     const attrMap: Record<
         string,
-        {
-            min: keyof CalculationResult;
-            mid: keyof CalculationResult;
-            max: keyof CalculationResult;
-        }
+        { min: keyof CalculationResult; mid: keyof CalculationResult; max: keyof CalculationResult }
     > = {
         professionalism: { min: "minPro", mid: "midPro", max: "maxPro" },
         pressure: { min: "minPre", mid: "midPre", max: "maxPre" },
@@ -96,434 +61,485 @@
         sportsmanship: { min: "minFp", mid: "midFp", max: "maxFp" },
         controversy: { min: "minPol", mid: "midPol", max: "maxPol" },
     };
+    const attributeKeys = Object.keys(attrMap);
 
-    function getAttrValues(attr: string): {
-        min: number;
-        mid: number | null;
-        max: number;
-    } {
-        const keys = attrMap[attr];
-        return {
-            min: result[keys.min] as number,
-            mid: result[keys.mid] as number | null,
-            max: result[keys.max] as number,
-        };
+    function colorVar(state: "success" | "warning" | "error" | "neutral"): string {
+        if (state === "success") return "var(--pos)";
+        if (state === "error") return "var(--neg)";
+        return "var(--neu)";
+    }
+    function glowVar(state: "success" | "warning" | "error" | "neutral"): string {
+        if (state === "success") return "rgba(116,224,107,0.5)";
+        if (state === "error") return "rgba(239,98,86,0.5)";
+        return "rgba(124,138,131,0.35)";
     }
 
-    function getTranslationKey(attr: string): string {
-        return `hidden_notes.${attr}`;
-    }
+    let attrRows = $derived(
+        attributeKeys.map((key) => {
+            const k = attrMap[key];
+            const min = result[k.min] as number;
+            const max = result[k.max] as number;
+            const mid = result[k.mid] as number | null;
+            const isControv = key === "controversy";
+            const hasMid = mid !== null && mid !== undefined;
+            const state = hasMid
+                ? getRangeColor(mid as number, mid as number, isControv)
+                : getRangeColor(min, max, isControv);
+            return {
+                key,
+                min,
+                max,
+                mid,
+                hasMid,
+                barLeft: (((min - 1) / 19) * 100).toFixed(1),
+                barWidth: Math.max(4, ((max - min) / 19) * 100).toFixed(1),
+                midLeft: hasMid ? ((((mid as number) - 1) / 19) * 100).toFixed(1) : "0",
+                color: colorVar(state),
+                glow: glowVar(state),
+            };
+        }),
+    );
 
-    function getDescriptionKey(attr: string): string {
-        return `hidden_notes.${attr}_desc`;
-    }
+    let personalityOptions = $derived(
+        PERSONALITIES.map((p) => ({ key: p.key, label: $_(`personalities.${p.key}`) })).sort(
+            (a, b) => a.label.localeCompare(b.label),
+        ),
+    );
+    let mediaOptions = $derived(
+        MEDIA_HANDLINGS.filter((m) => compatibleMedia.includes(m.key)).map((m) => ({
+            key: m.key,
+            label: $_(`media.${m.key}`),
+        })),
+    );
 
-    function reset() {
-        determination = 1;
-        selectedPersonality = null;
-        selectedMedia = null;
-        projects = {
-            shortTermPlaytime: false,
-            longTermPlaytime: false,
-            trophy: false,
-            captain: false,
-        };
-    }
+    const projectDefs = [
+        { key: "shortTermPlaytime", labelKey: "hidden_notes.project_short_term_playtime" },
+        { key: "longTermPlaytime", labelKey: "hidden_notes.project_long_term_playtime" },
+        { key: "trophy", labelKey: "hidden_notes.project_trophy" },
+        { key: "captain", labelKey: "hidden_notes.project_captain" },
+    ] as const;
 
     function resetProjects() {
-        projects = {
-            shortTermPlaytime: false,
-            longTermPlaytime: false,
-            trophy: false,
-            captain: false,
-        };
+        projects = { shortTermPlaytime: false, longTermPlaytime: false, trophy: false, captain: false };
     }
-
-    // Helper for color classes
-    function getColorClass(
-        color: "success" | "warning" | "error" | "neutral",
-    ): string {
-        switch (color) {
-            case "success":
-                return "bg-success-500";
-            case "warning":
-                return "bg-warning-500";
-            case "error":
-                return "bg-error-500";
-            case "neutral":
-                return "bg-surface-400";
-            default:
-                return "bg-surface-400";
-        }
-    }
-
-    function getBadgeClass(
-        color: "success" | "warning" | "error" | "neutral",
-    ): string {
-        switch (color) {
-            case "success":
-                return "variant-filled-success";
-            case "warning":
-                return "variant-filled-warning";
-            case "error":
-                return "variant-filled-error";
-            case "neutral":
-                return "variant-filled-surface";
-            default:
-                return "variant-filled-surface";
-        }
+    function reset() {
+        determination = 10;
+        selectedPersonality = null;
+        selectedMedia = null;
+        resetProjects();
     }
 </script>
 
 <svelte:head>
-    <title>{$_("hidden_notes.title")} - FMTools</title>
+    <title>{$_("hidden_notes.title")} — FM·TOOLS</title>
 </svelte:head>
 
-<div class="space-y-8 animate-fade-in-down">
-    <header class="text-center md:text-left">
-        <h1
-            class="h1 font-bold bg-gradient-to-br from-primary-400 to-secondary-500 bg-clip-text text-transparent inline-block"
-        >
-            {$_("hidden_notes.title")}
-        </h1>
-        <p class="text-surface-400 mt-2 text-lg">
-            Découvrez les notes cachées de vos joueurs selon leur personnalité.
-        </p>
+<div style="animation: fmFade .4s ease;">
+    <header class="page-head">
+        <div class="fm-eyebrow">MODULE 01</div>
+        <h1 class="fm-h1">{$_("hidden_notes.title")}</h1>
+        <p class="page-sub">{$_("hidden_notes.description")}</p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <!-- Input Card (Sticky on desktop) -->
-        <div class="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
-            <div class="card-glass p-6">
-                <h3
-                    class="h3 font-bold mb-4 text-orange-500 flex items-center gap-2"
+    <div class="layout">
+        <!-- config -->
+        <div class="fm-panel config">
+            <div class="fm-panel-head">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--lime)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 2.6 14H2.5a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4 7.3l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V2.5a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 17 4a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1h.1a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.4 1z" /></svg>
+                <span class="fm-panel-title" style="font-size:17px;"
+                    >{$_("home.config", { default: "Configuration" })}</span
                 >
-                    <span>⚙️</span> Configuration
-                </h3>
-
-                <div class="space-y-6">
-                    <!-- Determination Input -->
-                    <div class="space-y-2">
-                        <div
-                            class="flex justify-between items-center text-white/90"
-                        >
-                            <label class="font-bold" for="determination">
-                                {$_("hidden_notes.determination")}
-                            </label>
-                            <span
-                                class="px-2 py-1 rounded bg-orange-500/20 text-orange-400 font-mono text-base border border-orange-500/30"
-                                >{determination}</span
-                            >
-                        </div>
-
-                        <RangeSlider
-                            name="determination"
-                            bind:value={determination}
-                            min={Math.max(baseResult.detMin, minDetermination)}
-                            max={baseResult.detMax}
-                            step={1}
-                            ticked
-                            accent="bg-orange-500"
-                        />
-
-                        {#if minDetermination > 1 || baseResult.detMin > 1 || baseResult.detMax < 20}
-                            <div class="text-xs text-white/50 text-center">
-                                Plage valide : <span
-                                    class="text-orange-400 font-bold"
-                                    >{Math.max(
-                                        baseResult.detMin,
-                                        minDetermination,
-                                    )} - {baseResult.detMax}</span
-                                >
-                            </div>
-                        {/if}
+            </div>
+            <div class="config-body">
+                <!-- determination -->
+                <div>
+                    <div class="field-head">
+                        <label for="det">{$_("hidden_notes.determination")}</label>
+                        <span class="det-value fm-mono">{determination}</span>
                     </div>
-
-                    <hr class="border-white/10" />
-
-                    <!-- Personality Select -->
-                    <label class="block space-y-2">
-                        <span class="font-bold text-white/90"
-                            >{$_("hidden_notes.personality")}</span
-                        >
-                        <select
-                            class="input-glass w-full"
-                            bind:value={selectedPersonality}
-                            onchange={resetProjects}
-                        >
-                            <option value={null}>{$_("common.select")}</option>
-                            {#each PERSONALITIES as p}
-                                <option value={p.key}
-                                    >{$_(`personalities.${p.key}`)}</option
-                                >
-                            {/each}
-                        </select>
-                    </label>
-
-                    <!-- Media Handling Select -->
-                    <label class="block space-y-2">
-                        <span class="font-bold text-white/90"
-                            >{$_("hidden_notes.media_handling")}</span
-                        >
-                        <select
-                            class="input-glass w-full disabled:opacity-50"
-                            bind:value={selectedMedia}
-                            onchange={resetProjects}
-                            disabled={!selectedPersonality}
-                        >
-                            <option value={null}>{$_("common.select")}</option>
-                            {#each MEDIA_HANDLINGS.filter( (m) => compatibleMedia.includes(m.key), ) as m}
-                                <option value={m.key}
-                                    >{$_(`media.${m.key}`)}</option
-                                >
-                            {/each}
-                        </select>
-                    </label>
-
-                    <button
-                        class="btn w-full mt-4 bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/50 text-white/80 hover:text-red-300 transition-all"
-                        onclick={reset}
-                    >
-                        <span>↺</span>
-                        <span>{$_("common.reset")}</span>
-                    </button>
+                    <input
+                        id="det"
+                        type="range"
+                        min={detMin}
+                        max={detMax}
+                        step="1"
+                        bind:value={determination}
+                        class="range"
+                    />
+                    <div class="range-legend fm-mono">
+                        <span>min {detMin}</span>
+                        <span>{$_("home.valid_range", { default: "Plage valide" })}</span>
+                        <span>max {detMax}</span>
+                    </div>
                 </div>
+
+                <div class="divider"></div>
+
+                <!-- personality -->
+                <div>
+                    <label class="field-label" for="pers">{$_("hidden_notes.personality")}</label>
+                    <select
+                        id="pers"
+                        class="fm-select"
+                        bind:value={selectedPersonality}
+                        onchange={resetProjects}
+                    >
+                        <option value={null}>{$_("common.select")}…</option>
+                        {#each personalityOptions as opt}
+                            <option value={opt.key}>{opt.label}</option>
+                        {/each}
+                    </select>
+                </div>
+
+                <!-- media -->
+                <div>
+                    <label class="field-label" for="media">{$_("hidden_notes.media_handling")}</label>
+                    <select
+                        id="media"
+                        class="fm-select"
+                        bind:value={selectedMedia}
+                        onchange={resetProjects}
+                        disabled={!selectedPersonality}
+                    >
+                        <option value={null}>{$_("common.select")}…</option>
+                        {#each mediaOptions as opt}
+                            <option value={opt.key}>{opt.label}</option>
+                        {/each}
+                    </select>
+                </div>
+
+                <button class="fm-reset-btn" onclick={reset}>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 1 2.2 5.7" /><path d="M3 21v-5h5" /></svg>
+                    {$_("common.reset")}
+                </button>
             </div>
         </div>
 
-        <!-- Results Column -->
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Attributes Card -->
-            <div class="card-glass p-6">
-                <h2
-                    class="h2 font-bold mb-6 flex items-center gap-3 text-orange-500"
-                >
-                    <span>📊</span>
-                    {$_("hidden_notes.attributes")}
-                </h2>
-
-                <div class="overflow-x-auto">
-                    <table class="table w-full bg-transparent">
-                        <thead>
-                            <tr
-                                class="text-white/60 uppercase text-xs tracking-wider border-b border-white/10"
-                            >
-                                <th class="pb-3 text-left">Attribut</th>
-                                <th class="pb-3 text-center w-16">Min</th>
-                                <th
-                                    class="pb-3 text-center w-full min-w-[150px]"
-                                    >Plage</th
-                                >
-                                <th class="pb-3 text-center w-16">Max</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5">
-                            {#each attributeKeys as attr}
-                                {@const values = getAttrValues(attr)}
-                                {@const isControversy = attr === "controversy"}
-                                {@const colorState =
-                                    values.mid !== null
-                                        ? getRangeColor(
-                                              values.mid,
-                                              values.mid,
-                                              isControversy,
-                                          )
-                                        : getRangeColor(
-                                              values.min,
-                                              values.max,
-                                              isControversy,
-                                          )}
-                                {@const colorClass = getColorClass(colorState)}
-                                {@const badgeClass = getBadgeClass(colorState)}
-
-                                <tr
-                                    class="group hover:bg-white/5 transition-colors"
-                                >
-                                    <td
-                                        class="font-medium flex items-center gap-2 py-4 text-white/90"
-                                    >
-                                        {$_(getTranslationKey(attr))}
-                                        <Tooltip
-                                            text={$_(getDescriptionKey(attr))}
-                                        />
-                                    </td>
-
-                                    {#if values.mid !== null}
-                                        <td
-                                            class="text-center font-mono font-bold"
-                                            colspan="3"
-                                        >
-                                            <span
-                                                class="badge {badgeClass} min-w-[3rem] shadow text-white"
-                                                >{values.mid}</span
-                                            >
-                                        </td>
-                                    {:else}
-                                        <td
-                                            class="text-center font-mono text-white/70 group-hover:text-white"
-                                            >{values.min}</td
-                                        >
-                                        <td class="px-4 align-middle">
-                                            <!-- Visual Range Bar -->
-                                            <div
-                                                class="h-3 w-full bg-black/40 rounded-full relative overflow-hidden shadow-inner border border-white/5"
-                                            >
-                                                <!-- Background track markers (guidelines) -->
-                                                <div
-                                                    class="absolute inset-0 grid grid-cols-20 opacity-10"
-                                                >
-                                                    {#each Array(20) as _}
-                                                        <div
-                                                            class="border-l border-white h-full"
-                                                        ></div>
-                                                    {/each}
-                                                </div>
-
-                                                <!-- The Fill -->
-                                                <div
-                                                    class="absolute h-full rounded-full {colorClass} shadow-[0_0_10px_currentColor] transition-all duration-500 ease-out"
-                                                    style="left: {((values.min -
-                                                        1) /
-                                                        19) *
-                                                        100}%; width: {Math.max(
-                                                        5,
-                                                        ((values.max -
-                                                            values.min) /
-                                                            19) *
-                                                            100,
-                                                    )}%"
-                                                ></div>
-                                            </div>
-                                        </td>
-                                        <td
-                                            class="text-center font-mono text-white/70 group-hover:text-white"
-                                            >{values.max}</td
-                                        >
-                                    {/if}
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Projects Section -->
-            {#if visibleProjects.anyVisible}
-                <div
-                    class="card-glass p-6 animate-fade-in border-l-4 border-emerald-500"
-                >
-                    <header class="mb-4">
-                        <h3
-                            class="h3 font-bold text-emerald-400 flex items-center gap-2"
-                        >
-                            🚀 {$_("hidden_notes.projects_title")}
-                        </h3>
-                        <p class="text-sm text-white/60">
-                            {$_("hidden_notes.projects_subtitle")}
-                        </p>
-                    </header>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {#if visibleProjects.shortTermPlaytime}
-                            <label
-                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
-                            >
-                                <input
-                                    class="checkbox"
-                                    type="checkbox"
-                                    bind:checked={projects.shortTermPlaytime}
-                                />
-                                <span
-                                    >{$_(
-                                        "hidden_notes.project_short_term_playtime",
-                                    )}</span
-                                >
-                            </label>
-                        {/if}
-
-                        {#if visibleProjects.longTermPlaytime}
-                            <label
-                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
-                            >
-                                <input
-                                    class="checkbox"
-                                    type="checkbox"
-                                    bind:checked={projects.longTermPlaytime}
-                                />
-                                <span
-                                    >{$_(
-                                        "hidden_notes.project_long_term_playtime",
-                                    )}</span
-                                >
-                            </label>
-                        {/if}
-
-                        {#if visibleProjects.trophy}
-                            <label
-                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
-                            >
-                                <input
-                                    class="checkbox"
-                                    type="checkbox"
-                                    bind:checked={projects.trophy}
-                                />
-                                <span>{$_("hidden_notes.project_trophy")}</span>
-                            </label>
-                        {/if}
-
-                        {#if visibleProjects.captain}
-                            <label
-                                class="flex items-center space-x-3 p-4 rounded-lg border border-surface-500/30 hover:bg-surface-700/50 cursor-pointer transition-colors"
-                            >
-                                <input
-                                    class="checkbox"
-                                    type="checkbox"
-                                    bind:checked={projects.captain}
-                                />
-                                <span>{$_("hidden_notes.project_captain")}</span
-                                >
-                            </label>
-                        {/if}
+        <!-- results -->
+        <div class="results">
+            <div class="fm-panel">
+                <div class="fm-panel-head attrs-head">
+                    <span class="fm-panel-title" style="font-size:19px;"
+                        >{$_("home.deduced_attrs", { default: "Attributs déduits" })}</span
+                    >
+                    <div class="legend fm-mono">
+                        <span><span class="dot" style="background:var(--pos);"></span>{$_("home.strong", { default: "FORT" })}</span>
+                        <span><span class="dot" style="background:var(--neu);"></span>{$_("home.neutral", { default: "NEUTRE" })}</span>
+                        <span><span class="dot" style="background:var(--neg);"></span>{$_("home.weak", { default: "FAIBLE" })}</span>
                     </div>
                 </div>
-            {:else if selectedPersonality}
-                <div
-                    class="card p-4 variant-ghost-surface text-center italic text-surface-400"
-                >
-                    {$_("hidden_notes.projects_subtitle")} (Aucun projet disponible
-                    pour cette configuration)
+                <div class="attrs-body">
+                    {#each attrRows as row}
+                        <div class="attr-row">
+                            <div class="attr-label">
+                                <span>{$_(`hidden_notes.${row.key}`)}</span>
+                                <span class="attr-info" title={$_(`hidden_notes.${row.key}_desc`)}>i</span>
+                            </div>
+                            <span class="attr-num fm-mono">{row.min}</span>
+                            <div class="track">
+                                <div class="track-mid"></div>
+                                <div
+                                    class="track-fill"
+                                    style="left:{row.barLeft}%; width:{row.barWidth}%; background:{row.color}; box-shadow:0 0 12px {row.glow};"
+                                ></div>
+                                {#if row.hasMid}
+                                    <div
+                                        class="mid-badge fm-mono"
+                                        style="left:{row.midLeft}%; background:{row.color};"
+                                    >
+                                        {row.mid}
+                                    </div>
+                                {/if}
+                            </div>
+                            <span class="attr-num fm-mono">{row.max}</span>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+
+            <!-- projects -->
+            {#if visibleProjects.anyVisible}
+                <div class="fm-panel projects">
+                    <div class="projects-title fm-display">
+                        {$_("hidden_notes.projects_title")}
+                    </div>
+                    <p class="projects-sub">{$_("hidden_notes.projects_subtitle")}</p>
+                    <div class="projects-grid">
+                        {#each projectDefs as p}
+                            {#if visibleProjects[p.key]}
+                                <button
+                                    class="project"
+                                    class:checked={projects[p.key]}
+                                    onclick={() => (projects[p.key] = !projects[p.key])}
+                                >
+                                    <span class="checkbox">
+                                        {#if projects[p.key]}
+                                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#0a0c0a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6" /></svg>
+                                        {/if}
+                                    </span>
+                                    <span class="project-label">{$_(p.labelKey)}</span>
+                                </button>
+                            {/if}
+                        {/each}
+                    </div>
                 </div>
             {/if}
-
-            <!-- Links -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <a
-                    href="https://youtu.be/9bWkYexbNII"
-                    target="_blank"
-                    rel="noopener"
-                    class="btn variant-filled-secondary"
-                >
-                    🎥 {$_("hidden_notes.video_guide")}
-                </a>
-            </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* Custom utility if strict strict tailwind isn't enough for the specific animation */
-    /* Usually provided by plugin but adding fallback */
-    @keyframes fade-in-down {
-        0% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .page-head {
+        margin-bottom: 30px;
     }
-    .animate-fade-in-down {
-        animation: fade-in-down 0.5s ease-out;
+    .fm-eyebrow {
+        margin-bottom: 12px;
+    }
+    .page-sub {
+        color: var(--muted);
+        font-size: 15px;
+        margin: 0;
+        max-width: 620px;
+        line-height: 1.6;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 268px 1fr;
+        gap: 18px;
+        align-items: start;
+    }
+
+    .config {
+        position: sticky;
+        top: 0;
+        overflow: hidden;
+    }
+    .config-body {
+        padding: 22px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+    .field-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+    .field-head label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--txt);
+    }
+    .det-value {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--lime);
+        background: var(--limeDim);
+        border: 1px solid rgba(200, 242, 78, 0.25);
+        padding: 2px 11px;
+        border-radius: 8px;
+    }
+    .field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--txt);
+        margin-bottom: 9px;
+    }
+
+    .range {
+        width: 100%;
+        accent-color: var(--lime);
+        cursor: pointer;
+        height: 6px;
+    }
+    .range-legend {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--faint);
+        margin-top: 7px;
+    }
+    .divider {
+        height: 1px;
+        background: var(--line2);
+    }
+
+    .results {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .attrs-head {
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .legend {
+        display: flex;
+        gap: 11px;
+        font-size: 9.5px;
+        color: var(--faint);
+    }
+    .legend span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .attrs-body {
+        padding: 6px 22px 16px;
+    }
+    .attr-row {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--line2);
+    }
+    .attr-label {
+        width: 108px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--txt);
+    }
+    .attr-info {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        color: var(--faint);
+        font-size: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: help;
+        font-family: var(--font-mono);
+    }
+    .attr-num {
+        width: 18px;
+        flex-shrink: 0;
+        font-size: 12px;
+        color: var(--faint);
+        text-align: center;
+    }
+    .track {
+        flex: 1;
+        position: relative;
+        height: 8px;
+        background: rgba(0, 0, 0, 0.45);
+        border-radius: 6px;
+        border: 1px solid var(--line2);
+    }
+    .track-mid {
+        position: absolute;
+        top: -3px;
+        bottom: -3px;
+        left: 47.3%;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.16);
+    }
+    .track-fill {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-radius: 6px;
+        transition: all .45s cubic-bezier(.2, .8, .2, 1);
+    }
+    .mid-badge {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: #0a0c0a;
+        font-weight: 700;
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .projects {
+        border-left: 3px solid var(--lime);
+        padding: 20px 22px;
+    }
+    .projects-title {
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--lime);
+        margin-bottom: 4px;
+    }
+    .projects-sub {
+        color: var(--muted);
+        font-size: 12.5px;
+        margin: 0 0 16px;
+    }
+    .projects-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .project {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 13px;
+        border-radius: 11px;
+        cursor: pointer;
+        color: var(--txt);
+        font-family: var(--font-body);
+        text-align: left;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.02);
+        transition: all .2s;
+    }
+    .project.checked {
+        border-color: rgba(200, 242, 78, 0.4);
+        background: var(--limeDim);
+    }
+    .checkbox {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        background: transparent;
+    }
+    .project.checked .checkbox {
+        border-color: var(--lime);
+        background: var(--lime);
+    }
+    .project-label {
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    @media (max-width: 860px) {
+        .layout {
+            grid-template-columns: 1fr;
+        }
+        .config {
+            position: static;
+        }
+        .attr-label {
+            width: 92px;
+        }
     }
 </style>
