@@ -4,6 +4,14 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to release (e.g. v1.3.0)'
+        required: true
+
+# Tag from the pushed tag, or from the manual dispatch input.
+env:
+  RELEASE_TAG: ${{ github.event.inputs.version || github.ref_name }}
 
 jobs:
   create-release:
@@ -30,8 +38,9 @@ jobs:
           SHA256 checksums are included in \`checksums.txt\` for integrity verification.
           EOF
 
-          gh release create ${{ github.ref_name }} \
-            --title "FMToolsV2 ${{ github.ref_name }}" \
+          gh release create ${{ env.RELEASE_TAG }} \
+            --target ${{ github.sha }} \
+            --title "FMToolsV2 ${{ env.RELEASE_TAG }}" \
             --notes-file notes.md || true
 
   build-release:
@@ -67,8 +76,8 @@ jobs:
       - name: Install frontend dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Set Version from Tag
-        run: node scripts/set_version.js ${{ github.ref_name }}
+      - name: Set Version
+        run: node scripts/set_version.js ${{ env.RELEASE_TAG }}
 
       - name: Build Tauri app
         run: npm run tauri build
@@ -84,7 +93,7 @@ jobs:
             APPIMAGE_NAME=$(basename "$APPIMAGE")
             cp "$APPIMAGE" "./$APPIMAGE_NAME"
             echo "APPIMAGE_NAME=$APPIMAGE_NAME" >> $GITHUB_ENV
-            gh release upload ${{ github.ref_name }} "./$APPIMAGE_NAME" --clobber
+            gh release upload ${{ env.RELEASE_TAG }} "./$APPIMAGE_NAME" --clobber
           else
             echo "No AppImage found"
             exit 1
@@ -103,7 +112,7 @@ jobs:
         run: |
           sha256sum "./${{ env.APPIMAGE_NAME }}" > checksums_linux.txt
           cat checksums_linux.txt
-          gh release upload ${{ github.ref_name }} checksums_linux.txt --clobber
+          gh release upload ${{ env.RELEASE_TAG }} checksums_linux.txt --clobber
 
       - name: Upload Portable EXE (Windows)
         if: matrix.platform == 'windows-latest'
@@ -113,9 +122,9 @@ jobs:
         run: |
           $exePath = "src-tauri/target/release/FMTools.exe"
           if (Test-Path $exePath) {
-            $newName = "FMTools_${{ github.ref_name }}_portable_x64.exe"
+            $newName = "FMTools_${{ env.RELEASE_TAG }}_portable_x64.exe"
             Copy-Item $exePath $newName
-            gh release upload ${{ github.ref_name }} $newName --clobber
+            gh release upload ${{ env.RELEASE_TAG }} $newName --clobber
             # Store name for attestation
             echo "EXE_NAME=$newName" >> $env:GITHUB_ENV
           } else {
@@ -138,4 +147,4 @@ jobs:
           $hash = Get-FileHash "./${{ env.EXE_NAME }}" -Algorithm SHA256
           "$($hash.Hash.ToLower())  ${{ env.EXE_NAME }}" | Out-File -FilePath checksums_windows.txt -Encoding UTF8
           Get-Content checksums_windows.txt
-          gh release upload ${{ github.ref_name }} checksums_windows.txt --clobber
+          gh release upload ${{ env.RELEASE_TAG }} checksums_windows.txt --clobber
