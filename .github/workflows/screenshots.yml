@@ -1,0 +1,52 @@
+name: Screenshots
+# Régénère les captures localisées (Accueil + Rapports) de la nouvelle UI
+# et les commit sur main. À lancer après un changement d'interface.
+on:
+  workflow_dispatch:
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build static app
+        run: npm run build
+
+      - name: Capture screenshots
+        run: |
+          python3 -m http.server 4173 --directory build >/tmp/httpd.log 2>&1 &
+          for i in $(seq 1 20); do
+            curl -sf http://127.0.0.1:4173/ >/dev/null && break || sleep 0.5
+          done
+          node scripts/generate-screenshots.mjs
+
+      - name: Commit updated screenshots
+        run: |
+          git config user.name "Lib-LOCALE"
+          git config user.email "104373430+Lib-LOCALE@users.noreply.github.com"
+          git add screenshots/home_*.png screenshots/reports_*.png
+          if git diff --cached --quiet; then
+            echo "Aucun changement de capture."
+          else
+            git commit -m "docs(screenshots): régénère les captures localisées (nouvelle UI)"
+            git push origin HEAD:main
+          fi
